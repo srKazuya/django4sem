@@ -11,7 +11,7 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-        
+
 
 
 class Product(models.Model):
@@ -50,7 +50,7 @@ class ProductAttribute(models.Model):
     class Meta:
         verbose_name = 'Атрибут продукта'
         verbose_name_plural = 'Атрибуты продукта'
-        unique_together = ('product', 'attribute')  # Уникальное соотношение атрибута продукта с продуктом
+        unique_together = ('product', 'attribute')  
 
 
 class Customer(models.Model):
