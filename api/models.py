@@ -1,36 +1,46 @@
 from django.db import models
-
+from filer.fields.image import FilerImageField
 
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    parent = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='subcategories')
-
+    
     def __str__(self):
         return self.name
-
+    
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
 
-
+class Subcategory(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
+    
+    def __str__(self):
+        return f"{self.category.name} -> {self.name}"
+    
+    class Meta:
+        verbose_name = 'Подкатегория'
+        verbose_name_plural = 'Подкатегории'
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='products')
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    stock = models.PositiveIntegerField(default=0)  # Количество на складе
+    sku = models.CharField(max_length=50, unique=True, verbose_name='Артикул', default='000000')
+    subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    stock = models.PositiveIntegerField(default=0)  
+    image = FilerImageField(on_delete=models.CASCADE, related_name="product_images", null=True, blank=True, default=None)
     description = models.TextField(blank=True, null=True)
     
     def __str__(self):
-        return self.name
-
+        return f"{self.name} ({self.sku})"
+    
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
 
 class Attribute(models.Model):
     name = models.CharField(max_length=255, unique=True)
-
+    
     def __str__(self):
         return self.name
     
@@ -38,26 +48,24 @@ class Attribute(models.Model):
         verbose_name = 'Атрибут'
         verbose_name_plural = 'Атрибуты'
 
-
 class ProductAttribute(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attributes')
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE)
-    value = models.CharField(max_length=255)
-
+    value = models.CharField(max_length=255, default='N/A')
+    
     def __str__(self):
         return f"{self.product.name} - {self.attribute.name}: {self.value}"
     
     class Meta:
         verbose_name = 'Атрибут продукта'
-        verbose_name_plural = 'Атрибуты продукта'
+        verbose_name_plural = 'Атрибуты продуктов'
         unique_together = ('product', 'attribute')  
 
-
 class Customer(models.Model):
-    first_name = models.CharField(max_length=255)
-    last_name = models.CharField(max_length=255)
+    first_name = models.CharField(max_length=255, default='Имя')
+    last_name = models.CharField(max_length=255, default='Фамилия')
     email = models.EmailField(unique=True)
-
+    
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
     
@@ -65,54 +73,50 @@ class Customer(models.Model):
         verbose_name = 'Покупатель'
         verbose_name_plural = 'Покупатели'
 
-
-class Order(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='orders')
-    created_at = models.DateTimeField(auto_now_add=True)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    
-    def __str__(self):
-        return f"Order {self.id} by {self.customer.email}"
-    
-    class Meta:
-        verbose_name = 'Заказ'
-        verbose_name_plural = 'Заказы'
-        
-
-# Связь товаров и заказов (многие ко многим)
-class OrderItem(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def __str__(self):
-        return f"{self.product.name} (x{self.quantity})"
-    class Meta:
-        verbose_name = 'Товар в заказе'
-        verbose_name_plural = 'Товары в заказе'
-
-
-
 class Cart(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='cart', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def __str__(self):
         return f"Корзина {self.customer.email if self.customer else 'Анонимного пользователя'}"
-
+    
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
-        
-# Товары в корзине (связь многие ко многим)
+
 class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name="items")
+    cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(default=1)
     
     def __str__(self):
         return f"{self.product.name} (x{self.quantity})"
+    
     class Meta:
         verbose_name = 'Товар в корзине'
         verbose_name_plural = 'Товары в корзине'
+
+class Composition(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    designer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='compositions')
+    created_at = models.DateTimeField(auto_now_add=True)
+    image = FilerImageField(on_delete=models.CASCADE, related_name="composition_images", null=True, blank=True, default=None)
+    
+    def __str__(self):
+        return f"Композиция {self.name} от {self.designer.first_name}"
+    
+    class Meta:
+        verbose_name = 'Композиция'
+        verbose_name_plural = 'Композиции'
+
+class CompositionItem(models.Model):
+    composition = models.ForeignKey(Composition, on_delete=models.CASCADE, related_name='items')
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    
+    def __str__(self):
+        return f"{self.product.name} в {self.composition.name}"
+    
+    class Meta:
+        verbose_name = 'Товар в композиции'
+        verbose_name_plural = 'Товары в композиции'
