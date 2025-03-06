@@ -1,4 +1,6 @@
 from django.db import models
+from django.utils import timezone
+from django.db import models
 from filer.fields.image import FilerImageField
 
 from users.models import User
@@ -33,13 +35,16 @@ class Product(models.Model):
     image = FilerImageField(on_delete=models.CASCADE, related_name="product_images", null=True, blank=True, default=None)
     description = models.TextField(blank=True, null=True)
     
+    
     def __str__(self):
         return f"{self.name} ({self.sku})"
     
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
-
+class Comments(models.moderl):
+    
+    
 class Attribute(models.Model):
     name = models.CharField(max_length=255, unique=True)
     
@@ -66,7 +71,7 @@ class ProductAttribute(models.Model):
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(auto_now_add=True, default=timezone.now)
     
     def __str__(self):
         return f"Корзина {self.user.email if self.user else 'Анонимного пользователя'}"
