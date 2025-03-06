@@ -26,6 +26,31 @@ SECRET_KEY = 'django-insecure-d#+hz9-2iew!w4y5^vch35-ulfnplwd9c*8-q@b^#$e12wv!_b
 DEBUG = True
 
 ALLOWED_HOSTS = []
+# Основная директория для медиафайлов
+MEDIA_URL = "/media/"
+MEDIA_ROOT = BASE_DIR / "media"
+
+# Настройки Django Filer
+FILER_PUBLIC_MEDIA_ROOT = MEDIA_ROOT / "filer_public"
+FILER_PUBLIC_MEDIA_URL = MEDIA_URL + "filer_public/"
+FILER_STORAGES = {
+    "public": {
+        "main": {
+            "ENGINE": "filer.storage.PublicFileSystemStorage",
+            "OPTIONS": {
+                "location": FILER_PUBLIC_MEDIA_ROOT,
+                "base_url": FILER_PUBLIC_MEDIA_URL,
+            },
+        },
+        "thumbnails": {
+            "ENGINE": "filer.storage.PublicFileSystemStorage",
+            "OPTIONS": {
+                "location": FILER_PUBLIC_MEDIA_ROOT / "thumbnails",
+                "base_url": FILER_PUBLIC_MEDIA_URL + "thumbnails/",
+            },
+        },
+    },
+}
 
 
 # Application definition
@@ -40,7 +65,7 @@ INSTALLED_APPS = [
     'filer',
     'easy_thumbnails',
     'api',
-    # 'users',
+    'users',
 ]
 
 MIDDLEWARE = [
@@ -103,7 +128,7 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
-# AUTH_USER_MODEL = 'users.User'
+AUTH_USER_MODEL = 'users.User'
 
 
 # Internationalization

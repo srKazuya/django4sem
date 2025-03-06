@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Category, Subcategory, Product, Attribute, ProductAttribute, Customer,
+    Category, Subcategory, Product, Attribute, ProductAttribute, 
     Cart, CartItem, Composition, CompositionItem
 )
 
@@ -50,16 +50,12 @@ class ProductAttributeAdmin(admin.ModelAdmin):
     list_filter = ("attribute",)
     search_fields = ("product__name", "attribute__name", "value")
 
-@admin.register(Customer)
-class CustomerAdmin(admin.ModelAdmin):
-    list_display = ("first_name", "last_name", "email")
-    search_fields = ("first_name", "last_name", "email")
 
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
-    list_display = ("id", "customer", "created_at")
+    list_display = ("id", "user", "created_at")
     date_hierarchy = "created_at"
-    search_fields = ("customer__email",)
+    search_fields = ("user__email",)
     inlines = [CartItemInline]
 
 @admin.register(CartItem)

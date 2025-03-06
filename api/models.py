@@ -1,6 +1,8 @@
 from django.db import models
 from filer.fields.image import FilerImageField
 
+from users.models import User
+
 class Category(models.Model):
     name = models.CharField(max_length=255, unique=True)
     
@@ -61,24 +63,13 @@ class ProductAttribute(models.Model):
         verbose_name_plural = 'Атрибуты продуктов'
         unique_together = ('product', 'attribute')  
 
-class Customer(models.Model):
-    first_name = models.CharField(max_length=255, default='Имя')
-    last_name = models.CharField(max_length=255, default='Фамилия')
-    email = models.EmailField(unique=True)
-    
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-    
-    class Meta:
-        verbose_name = 'Покупатель'
-        verbose_name_plural = 'Покупатели'
 
 class Cart(models.Model):
-    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='cart', null=True, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
-        return f"Корзина {self.customer.email if self.customer else 'Анонимного пользователя'}"
+        return f"Корзина {self.user.email if self.user else 'Анонимного пользователя'}"
     
     class Meta:
         verbose_name = 'Корзина'
@@ -98,7 +89,7 @@ class CartItem(models.Model):
 
 class Composition(models.Model):
     name = models.CharField(max_length=255, unique=True)
-    designer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='compositions')
+    designer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='compositions')
     created_at = models.DateTimeField(auto_now_add=True)
     image = FilerImageField(on_delete=models.CASCADE, related_name="composition_images", null=True, blank=True, default=None)
     
