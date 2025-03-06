@@ -1,11 +1,8 @@
 from django.contrib import admin
-from .models import Category, Product, Attribute, ProductAttribute, Customer, Order, OrderItem, Cart, CartItem
-
-# Inline для OrderItem в OrderAdmin
-class OrderItemInline(admin.TabularInline):
-    model = OrderItem
-    extra = 1
-    raw_id_fields = ("product",)
+from .models import (
+    Category, Subcategory, Product, Attribute, ProductAttribute, Customer,
+    Cart, CartItem, Composition, CompositionItem
+)
 
 # Inline для CartItem в CartAdmin
 class CartItemInline(admin.TabularInline):
@@ -13,22 +10,34 @@ class CartItemInline(admin.TabularInline):
     extra = 1
     raw_id_fields = ("product",)
 
+# Inline для CompositionItem в CompositionAdmin 
+class CompositionItemInline(admin.TabularInline):
+    model = CompositionItem
+    extra = 1
+    raw_id_fields = ("product",)
+
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "parent")
-    list_filter = ("parent",)
+    list_display = ("name",)
+    search_fields = ("name",)
+
+@admin.register(Subcategory)
+class SubcategoryAdmin(admin.ModelAdmin):
+    list_display = ("name", "category")
+    list_filter = ("category",)
     search_fields = ("name",)
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "category", "price", "stock", "get_attributes")
-    list_filter = ("category", "price")
-    search_fields = ("name", "description")
-    raw_id_fields = ("category",)
+    list_display = ("name", "sku", "subcategory", "price", "stock", "get_image")
+    list_filter = ("subcategory", "price")
+    search_fields = ("name", "sku", "description")
+    raw_id_fields = ("subcategory",)
     
-    @admin.display(description="Атрибуты")
-    def get_attributes(self, obj):
-        return ", ".join([f"{pa.attribute.name}: {pa.value}" for pa in obj.attributes.all()])
+    @admin.display(description="Изображение")
+    def get_image(self, obj):
+        return obj.image.url if obj.image else "Нет изображения"
+
 
 @admin.register(Attribute)
 class AttributeAdmin(admin.ModelAdmin):
@@ -46,20 +55,6 @@ class CustomerAdmin(admin.ModelAdmin):
     list_display = ("first_name", "last_name", "email")
     search_fields = ("first_name", "last_name", "email")
 
-@admin.register(Order)
-class OrderAdmin(admin.ModelAdmin):
-    list_display = ("id", "customer", "created_at", "total_price")
-    list_filter = ("created_at",)
-    date_hierarchy = "created_at"
-    search_fields = ("customer__email",)
-    inlines = [OrderItemInline]
-
-@admin.register(OrderItem)
-class OrderItemAdmin(admin.ModelAdmin):
-    list_display = ("order", "product", "quantity", "price")
-    list_filter = ("order", "product")
-    raw_id_fields = ("order", "product")
-
 @admin.register(Cart)
 class CartAdmin(admin.ModelAdmin):
     list_display = ("id", "customer", "created_at")
@@ -72,3 +67,21 @@ class CartItemAdmin(admin.ModelAdmin):
     list_display = ("cart", "product", "quantity")
     list_filter = ("cart", "product")
     raw_id_fields = ("cart", "product")
+
+@admin.register(Composition)
+class CompositionAdmin(admin.ModelAdmin):
+    list_display = ("name", "designer", "created_at", "get_image")
+    date_hierarchy = "created_at"
+    search_fields = ("name", "designer__email")
+    inlines = [CompositionItemInline]
+    
+    @admin.display(description="Изображение")
+    def get_image(self, obj):
+        return obj.image.url if obj.image else "Нет изображения"
+
+
+@admin.register(CompositionItem)
+class CompositionItemAdmin(admin.ModelAdmin):
+    list_display = ("composition", "product", "quantity")
+    list_filter = ("composition", "product")
+    raw_id_fields = ("composition", "product")
