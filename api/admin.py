@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    Category, Subcategory, Product, Attribute, ProductAttribute, 
+    Category, Subcategory, Product, Attribute, ProductAttribute, Comment,
     Cart, CartItem, Composition, CompositionItem
 )
 
@@ -81,3 +81,9 @@ class CompositionItemAdmin(admin.ModelAdmin):
     list_display = ("composition", "product", "quantity")
     list_filter = ("composition", "product")
     raw_id_fields = ("composition", "product")
+
+@admin.register(Comment)
+class CommentAdmin(admin.ModelAdmin):
+    list_display = ('user', 'product', 'created_at', 'is_approved')
+    search_fields = ('user__username', 'product__name', 'text')
+    list_filter = ('is_approved', 'created_at')

@@ -1,8 +1,10 @@
 from django.db import models
 from django.utils import timezone
 from django.db import models
+from django.contrib.auth.models import User
 from filer.fields.image import FilerImageField
 
+from backend import settings
 from users.models import User
 
 class Category(models.Model):
@@ -42,9 +44,21 @@ class Product(models.Model):
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
-class Comments(models.moderl):
+class Comment(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL,  on_delete=models.CASCADE,related_name='comments', verbose_name='Пользователь')
+    text = models.TextField(verbose_name='Текст комментария')
+    product = models.ForeignKey('Product', on_delete=models.CASCADE,related_name='comments',verbose_name='Продукт')
+    rating = models.PositiveIntegerField(choices=((1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')), default=3, verbose_name='Рейтинг')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания', default=timezone.now)
+    is_approved = models.BooleanField(default=False, verbose_name='Одобрен')
     
+    def __str__(self):
+        return f"Комментарий от {self.user} к {self.product.name}"
     
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+        ordering = ['created_at'] 
 class Attribute(models.Model):
     name = models.CharField(max_length=255, unique=True)
     
