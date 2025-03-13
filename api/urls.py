@@ -1,7 +1,7 @@
 from django.urls import path, include
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet,  CommentViewSet
+from .views import ProductViewSet,  CommentViewSet, CompositionViewSet
 
 
 router = DefaultRouter()
@@ -12,4 +12,5 @@ router.register(r'comments', CommentViewSet, basename='comment')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('api/products/<slug:name>/<str:sku>/', ProductViewSet.as_view({'get': 'retrieve'}), name='product-detail'),
 ]

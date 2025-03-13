@@ -64,7 +64,9 @@
 
 # class CartItemViewSet(ModelViewSet):
 #     queryset = CartItem.objects.all()
-#     serializer_class = CartItemSerializer
+#     serializer_class = CartItemSerializer\
+from django.utils.text import slugify
+from pytils.translit import slugify as ru_slugify
 from django.db.models import Count, Avg, Max
 from django.urls import reverse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -78,7 +80,7 @@ from .serializers import (
 )
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.with_high_rating()  # ✅ Используем кастомный менеджер
+    queryset = Product.objects.with_high_rating()  
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['subcategory__category', 'price']
@@ -90,6 +92,50 @@ class ProductViewSet(ModelViewSet):
         queryset = queryset.order_by('-price')
         return queryset
 
+    @action(detail=False, methods=['get'])
+    def stats(self, request):
+        """Функция агрегации: средняя цена, макс. цена, кол-во товаров"""
+        stats = Product.objects.aggregate(
+            avg_price=Avg('price'),
+            max_price=Max('price'),
+            product_count=Count('id')
+        )
+        return Response(stats)
+
+    @action(detail=False, methods=['get'], url_path='high-rating')
+    def high_rating(self, request):
+        """Фильтруем товары с высоким рейтингом (avg_rating >= 4)"""
+        high_rating_products = Product.objects.with_high_rating()
+        serializer = self.get_serializer(high_rating_products, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['get'])
+    def get_absolute(self, request, pk=None):
+        """Возвращает абсолютный URL для продукта"""
+        product = self.get_object()
+
+        if not product.name:
+            return Response({"error": "Product name is empty"}, status=400)
+
+        slug_name = ru_slugify(product.name)  # "Gaming Laptop" -> "gaming-laptop"
+
+        url = reverse('product-detail', kwargs={'name': slug_name, 'sku': product.sku})
+
+        return Response({"absolute_url": request.build_absolute_uri(url)})
+    
+    queryset = Product.objects.with_high_rating()  
+    serializer_class = ProductSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['subcategory__category', 'price']
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.filter(stock__gt=0)
+        queryset = queryset.exclude(price=0)
+        queryset = queryset.order_by('-price')
+        return queryset
+
+    
     @action(detail=False, methods=['get'])
     def stats(self, request):
         stats = Product.objects.aggregate(
