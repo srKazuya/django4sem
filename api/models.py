@@ -3,6 +3,8 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth.models import User
 from filer.fields.image import FilerImageField
+from django.db import models
+from django.db.models import Avg
 
 from backend import settings
 from users.models import User
@@ -28,28 +30,37 @@ class Subcategory(models.Model):
         verbose_name = 'Подкатегория'
         verbose_name_plural = 'Подкатегории'
 
+
+class ProductManager(models.Manager):
+    def with_high_rating(self):
+        return self.annotate(avg_rating=Avg('comments__rating')).filter(avg_rating__gte=4)
+
 class Product(models.Model):
     name = models.CharField(max_length=255)
     sku = models.CharField(max_length=50, unique=True, verbose_name='Артикул', default='000000')
-    subcategory = models.ForeignKey(Subcategory, on_delete=models.CASCADE, related_name='products', null=True, blank=True)
+    subcategory = models.ForeignKey('Subcategory', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    stock = models.PositiveIntegerField(default=0)  
-    image = FilerImageField(on_delete=models.CASCADE, related_name="product_images", null=True, blank=True, default=None)
+    stock = models.PositiveIntegerField(default=0)
+    image = models.ImageField(upload_to='products/', null=True, blank=True, default=None)
     description = models.TextField(blank=True, null=True)
-    
-    
+
+    objects = ProductManager()  # Use the custom manager
+
     def __str__(self):
         return f"{self.name} ({self.sku})"
-    
+
     class Meta:
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
+
+
+
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,  on_delete=models.CASCADE,related_name='comments', verbose_name='Пользователь')
     text = models.TextField(verbose_name='Текст комментария')
     product = models.ForeignKey('Product', on_delete=models.CASCADE,related_name='comments',verbose_name='Продукт')
     rating = models.PositiveIntegerField(choices=((1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')), default=3, verbose_name='Рейтинг')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания', default=timezone.now)
+    created_at = models.DateTimeField(verbose_name='Дата создания', default=timezone.now)
     is_approved = models.BooleanField(default=False, verbose_name='Одобрен')
     
     def __str__(self):
@@ -85,7 +96,7 @@ class ProductAttribute(models.Model):
 
 class Cart(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True, default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
         return f"Корзина {self.user.email if self.user else 'Анонимного пользователя'}"
@@ -106,15 +117,24 @@ class CartItem(models.Model):
         verbose_name = 'Товар в корзине'
         verbose_name_plural = 'Товары в корзине'
 
+from django.db import models
+from django.contrib.auth import get_user_model
+from django.urls import reverse
+
+User = get_user_model()
+
 class Composition(models.Model):
     name = models.CharField(max_length=255, unique=True)
     designer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='compositions')
     created_at = models.DateTimeField(auto_now_add=True)
-    image = FilerImageField(on_delete=models.CASCADE, related_name="composition_images", null=True, blank=True, default=None)
-    
+    image = models.ImageField(upload_to="composition_images/", null=True, blank=True, default=None)
+
     def __str__(self):
-        return f"Композиция {self.name} от {self.designer.first_name}"
+        return f"Композиция {self.name} от {self.designer.get_full_name() or self.designer.username}"
     
+    def get_absolute_url(self):
+        return reverse('composition-detail', kwargs={'pk': self.pk})  
+
     class Meta:
         verbose_name = 'Композиция'
         verbose_name_plural = 'Композиции'
