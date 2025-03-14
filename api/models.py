@@ -53,7 +53,7 @@ class Product(models.Model):
         verbose_name = 'Продукт'
         verbose_name_plural = 'Продукты'
 
-
+# переменная
 
 class Comment(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL,  on_delete=models.CASCADE,related_name='comments', verbose_name='Пользователь')
@@ -70,6 +70,8 @@ class Comment(models.Model):
         verbose_name = 'Комментарий'
         verbose_name_plural = 'Комментарии'
         ordering = ['created_at'] 
+        
+        
 class Attribute(models.Model):
     name = models.CharField(max_length=255, unique=True)
     

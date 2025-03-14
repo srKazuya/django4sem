@@ -111,16 +111,11 @@ class ProductViewSet(ModelViewSet):
 
     @action(detail=True, methods=['get'])
     def get_absolute(self, request, pk=None):
-        """Возвращает абсолютный URL для продукта"""
         product = self.get_object()
-
         if not product.name:
             return Response({"error": "Product name is empty"}, status=400)
-
-        slug_name = ru_slugify(product.name)  # "Gaming Laptop" -> "gaming-laptop"
-
+        slug_name = ru_slugify(product.name)  
         url = reverse('product-detail', kwargs={'name': slug_name, 'sku': product.sku})
-
         return Response({"absolute_url": request.build_absolute_uri(url)})
     
     queryset = Product.objects.with_high_rating()  
