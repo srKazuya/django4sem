@@ -68,6 +68,12 @@ INSTALLED_APPS = [
     'easy_thumbnails',
     'api',
     'users',
+    'corsheaders',
+    
+]
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  
 ]
 
 MIDDLEWARE = [
@@ -78,6 +84,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'

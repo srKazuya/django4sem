@@ -79,6 +79,8 @@ from .serializers import (
     CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer
 )
 
+
+
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.with_high_rating()  
     serializer_class = ProductSerializer
