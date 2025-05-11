@@ -1,5 +1,7 @@
 const Main = () => {
-    return <div>Главная страница</div>;
+    return <div>
+        <img src=".\assets\main_back.jpg" alt="" />
+    </div>;
 };
 
 export default Main;

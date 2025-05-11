@@ -162,3 +162,7 @@ class CartViewSet(ModelViewSet):
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.filter(subcategories__isnull=False).distinct()
+    serializer_class = CategorySerializer

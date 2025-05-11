@@ -5,10 +5,17 @@ from .models import (
     Composition, CompositionItem
 )
 
+class SubcategoryShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subcategory
+        fields = ('id', 'name')
+
 class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubcategoryShortSerializer(many=True, read_only=True)
+
     class Meta:
         model = Category
-        fields = '__all__'
+        fields = ('id', 'name', 'subcategories')
 
 class SubcategorySerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)

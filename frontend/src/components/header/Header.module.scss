@@ -1,0 +1,39 @@
+.mainCont {
+  background-color: #fff;
+  padding: 10px;
+}
+
+.menu {
+  list-style: none;
+  display: flex;
+  gap: 20px;
+}
+
+.menuItem {
+  position: relative;
+  cursor: pointer;
+}
+
+.submenu {
+  list-style: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background-color: #fff;
+  border: 1px solid #ccc;
+  display: none;
+  padding: 10px;
+}
+
+.menuItem:hover .submenu {
+  display: block;
+}
+
+.submenuItem {
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.submenuItem:hover {
+  background-color: #f0f0f0;
+}
