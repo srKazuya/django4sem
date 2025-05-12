@@ -1,3 +1,52 @@
+@font-face {
+    font-family: 'SchoolBook';
+    src: url('assets/fonts/SchoolBook-Regular.woff2') format('woff2'),
+        url('assets/fonts/SchoolBook-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'assets/fonts/SchoolBook';
+    src: url('assets/fonts/SchoolBook-Bold.woff2') format('woff2'),
+        url('assets/fonts/SchoolBook-Bold.woff') format('woff');
+    font-weight: bold;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'assets/fonts/SchoolBook';
+    src: url('assets/fonts/SchoolBook-Italic.woff2') format('woff2'),
+        url('assets/fonts/SchoolBook-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: italic;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'assets/fonts/SchoolBook';
+    src: url('assets/fonts/SchoolBook-BoldItalic.woff2') format('woff2'),
+        url('assets/fonts/SchoolBook-BoldItalic.woff') format('woff');
+    font-weight: bold;
+    font-style: italic;
+    font-display: swap;
+}
+
+*{
+  box-sizing: border-box;
+}
+
+:root {
+  --background-color: gray;
+  --tex-color: white;
+  --tex-color-2: #4B4B4B;
+  --primary-color: #F3F1EC;
+  font-size: 62.5%;
+  font-family: 'Schoolbook', sans-serif;
+}
+
 body{
   margin: 0;
   width: 100%;
@@ -5,4 +54,5 @@ body{
 }
 ul{
   margin: 0;
+  padding: 0;
 }

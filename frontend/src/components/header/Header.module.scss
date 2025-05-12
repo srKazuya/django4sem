@@ -1,18 +1,76 @@
+
+@use "../../styles/breakpoints" as *;
+.container {
+  padding: 2rem;
+
+  @include respond(md) {
+    padding: 4rem;
+  }
+}
+
 .mainCont {
   background-color: #fff;
-  padding: 10px;
+  padding: 0;
+  width: 100%;
+}
+
+%menu-base {
+  list-style: none;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 3.2rem;
+  align-items: end;
 }
 
 .menu {
-  list-style: none;
+  @extend %menu-base;
+}
+
+.leftMenu {
+  @extend %menu-base;
+  padding-right: 8rem;
+}
+
+.rightMenu {
+  @extend %menu-base;
+  padding-left: 8rem;
+}
+
+.nav {
+  margin-top: 4rem;
+  padding: 0 10vw;
+  max-width: 100%;
   display: flex;
-  gap: 20px;
+  flex-wrap: nowrap;
+  // justify-content: space-around;
 }
 
 .menuItem {
+  font-size: clamp(1.6rem, 2.4rem, 4rem);
   position: relative;
   cursor: pointer;
+  text-transform: uppercase;
+
+  &::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 100%;
+    height: 2px;
+    background-color: #B50027; 
+    opacity: 0;
+    transform: scaleX(0);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  &:hover::after {
+    opacity: 1;
+    transform: scaleX(1);
+  }
 }
+
 
 .submenu {
   list-style: none;
@@ -23,6 +81,21 @@
   border: 1px solid #ccc;
   display: none;
   padding: 10px;
+  font-size: clamp(1.6rem, 2.4rem, 4rem);
+  text-transform: none;
+}
+.logo {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  width: auto;
+}
+
+.logoCont {
+  min-width: 28.8rem;
+  width: auto;
+  max-width: 50.8rem;
+  height: auto;
 }
 
 .menuItem:hover .submenu {
@@ -37,3 +110,6 @@
 .submenuItem:hover {
   background-color: #f0f0f0;
 }
+
+
+

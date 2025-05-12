@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="_Слой_1" data-name="Слой 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300.6 103.04">
+  <defs>
+    <style>
+      .cls-1 {
+        fill: #f0f0f0;
+      }
+
+      .cls-2 {
+        letter-spacing: 0em;
+      }
+
+      .cls-3 {
+        fill: #2e52b2;
+      }
+
+      .cls-4 {
+        letter-spacing: -.02em;
+      }
+
+      .cls-5 {
+        fill: #b50027;
+      }
+
+      .cls-6 {
+        font-family: SchoolBook-Bold, SchoolBook;
+        font-size: 72px;
+        font-weight: 700;
+      }
+
+      .cls-7 {
+        font-family: SchoolBook-Italic, SchoolBook;
+        font-size: 23.5px;
+        font-style: italic;
+      }
+    </style>
+  </defs>
+  <text class="cls-6" transform="translate(84.08 60.48)"><tspan x="0" y="0">H</tspan><tspan class="cls-2" x="59.47" y="0">y</tspan><tspan class="cls-4" x="95.76" y="0">gg</tspan><tspan x="176.69" y="0">e</tspan></text>
+  <g>
+    <rect class="cls-5" x="0" y="11.55" width="75.24" height="49"/>
+    <polygon class="cls-1" points="75.24 41.77 29.71 41.77 29.71 60.55 26.99 60.55 20.72 60.55 17.99 60.55 17.99 41.77 0 41.77 0 39.11 0 32.99 0 30.32 17.99 30.32 17.99 11.55 20.72 11.55 26.99 11.55 29.71 11.55 29.71 30.32 75.24 30.32 75.24 32.99 75.24 39.11 75.24 41.77"/>
+    <polygon class="cls-3" points="75.24 32.99 75.24 39.11 26.99 39.11 26.99 60.55 20.72 60.55 20.72 39.11 0 39.11 0 32.99 20.72 32.99 20.72 11.55 26.99 11.55 26.99 32.99 75.24 32.99"/>
+  </g>
+  <text class="cls-7" transform="translate(0 96.01) scale(.96 1)"><tspan x="0" y="0">Turn your house into a home</tspan></text>
+</svg>

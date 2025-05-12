@@ -1,0 +1,21 @@
+// breakpoints.scss
+
+$breakpoints: (
+  xs: 0, //мобилочка
+  sm: 576px, // лил планш   
+  md: 768px, // Планшеты и маленькие ноутбуки
+  lg: 992px, // Ноутбуки
+  xl: 1200px, // Десктопы
+  xxl: 1400px, // Очень широкие экраны
+);
+
+@mixin respond($breakpoint) {
+  $value: map-get($breakpoints, $breakpoint);
+  @if $value != null {
+    @media (min-width: $value) {
+      @content;
+    }
+  } @else {
+    @warn "⚠️ Breakpoint '#{$breakpoint}' не найден в \$breakpoints.";
+  }
+}
