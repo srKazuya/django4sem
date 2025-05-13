@@ -1,138 +1,89 @@
-# from django.db.models import Count, Avg, Max
-# from django.urls import reverse
-# from django_filters.rest_framework import DjangoFilterBackend
-# from rest_framework.viewsets import ModelViewSet
-# from rest_framework.response import Response
-# from rest_framework.decorators import action
-# from api import models
-
-# from .models import (
-#     Category, Subcategory, Product, Comment, 
-#     Attribute, ProductAttribute, Cart, CartItem, 
-#     Composition, CompositionItem
-# )
-# from .serializers import (
-#     CategorySerializer, SubcategorySerializer, ProductSerializer, 
-#     CommentSerializer, AttributeSerializer, ProductAttributeSerializer, 
-#     CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer
-# )
-# from api import models
-
-
-
-# class ProductViewSet(ModelViewSet):
-#     queryset = Product.objects.all()
-#     serializer_class = ProductSerializer
-#     filter_backends = [DjangoFilterBackend]
-#     filterset_fields = ['subcategory__category', 'price']  # 6. Использование __ (обращение к связанной таблице)
-    
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         queryset = queryset.filter(stock__gt=0)  # 5. Метод filter()
-#         queryset = queryset.exclude(price=0)  # 7. Метод exclude()
-#         queryset = queryset.order_by('-price')  # 8. Метод order_by()
-#         return queryset
-
-#     # 11. Функции агрегирования и аннотирования (три примера)
-#     @action(detail=False, methods=['get'])
-#     def stats(self, request):
-#         stats = Product.objects.aggregate(
-#             avg_price=Avg('price'),  # Средняя цена товаров
-#             max_price=Max('price'),  # Максимальная цена
-#             product_count=Count('id')  # Количество товаров
-#         )
-#         return Response(stats)
-
-# class CommentViewSet(ModelViewSet):
-#     queryset = Comment.objects.all()
-#     serializer_class = CommentSerializer
-
-# class CompositionViewSet(ModelViewSet):
-#     queryset = Composition.objects.all()
-#     serializer_class = CompositionSerializer
-
-#     # 10. get_absolute_url, reverse
-#     @action(detail=True, methods=['get'])
-#     def get_absolute(self, request, pk=None):
-#         composition = self.get_object()
-#         url = reverse('composition-detail', kwargs={'pk': composition.pk})
-#         return Response({"absolute_url": request.build_absolute_uri(url)})
-
-# class CartViewSet(ModelViewSet):
-#     queryset = Cart.objects.all()
-#     serializer_class = CartSerializer
-
-# class CartItemViewSet(ModelViewSet):
-#     queryset = CartItem.objects.all()
-#     serializer_class = CartItemSerializer\
-from django.utils.text import slugify
-from pytils.translit import slugify as ru_slugify
-from django.db.models import Count, Avg, Max
+import logging
 from django.urls import reverse
+from django.db.models import Count, Avg, Max
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Category, Subcategory, Product, Comment, Cart, CartItem, Composition
+from .models import Category, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem
 from .serializers import (
     CategorySerializer, SubcategorySerializer, ProductSerializer, 
-    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer
+    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer
 )
 
+logger = logging.getLogger(__name__)
 
+class CategoryViewSet(ModelViewSet):
+    queryset = Category.objects.filter(subcategories__isnull=False).distinct()
+    serializer_class = CategorySerializer
+    lookup_field = 'slug'
 
-class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.with_high_rating()  
-    serializer_class = ProductSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_fields = ['subcategory__category', 'price']
-
-    def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(stock__gt=0)
-        queryset = queryset.exclude(price=0)
-        queryset = queryset.order_by('-price')
-        return queryset
-
-    @action(detail=False, methods=['get'])
-    def stats(self, request):
-        """Функция агрегации: средняя цена, макс. цена, кол-во товаров"""
-        stats = Product.objects.aggregate(
-            avg_price=Avg('price'),
-            max_price=Max('price'),
-            product_count=Count('id')
-        )
-        return Response(stats)
-
-    @action(detail=False, methods=['get'], url_path='high-rating')
-    def high_rating(self, request):
-        """Фильтруем товары с высоким рейтингом (avg_rating >= 4)"""
-        high_rating_products = Product.objects.with_high_rating()
-        serializer = self.get_serializer(high_rating_products, many=True)
-        return Response(serializer.data)
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        logger.info(f"Поиск категории с slug: {slug}")
+        try:
+            category = Category.objects.get(slug=slug)
+            logger.info(f"Найдена категория: {category.name} (slug: {category.slug})")
+            return category
+        except Category.DoesNotExist:
+            logger.error(f"Категория с slug {slug} не найдена")
+            raise
 
     @action(detail=True, methods=['get'])
-    def get_absolute(self, request, pk=None):
-        product = self.get_object()
-        if not product.name:
-            return Response({"error": "Product name is empty"}, status=400)
-        slug_name = ru_slugify(product.name)  
-        url = reverse('product-detail', kwargs={'name': slug_name, 'sku': product.sku})
+    def get_absolute(self, request, slug=None):
+        category = self.get_object()
+        url = reverse('category-detail', kwargs={'slug': category.slug})
         return Response({"absolute_url": request.build_absolute_uri(url)})
-    
-    queryset = Product.objects.with_high_rating()  
+
+class SubcategoryViewSet(ModelViewSet):
+    queryset = Subcategory.objects.all()
+    serializer_class = SubcategorySerializer
+    lookup_field = 'slug'
+
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        logger.info(f"Поиск подкатегории с slug: {slug}")
+        try:
+            subcategory = Subcategory.objects.get(slug=slug)
+            logger.info(f"Найдена подкатегория: {subcategory.name} (slug: {subcategory.slug})")
+            return subcategory
+        except Subcategory.DoesNotExist:
+            logger.error(f"Подкатегория с slug {slug} не найдена")
+            raise
+
+    @action(detail=True, methods=['get'])
+    def get_absolute(self, request, slug=None):
+        subcategory = self.get_object()
+        url = reverse('subcategory-detail', kwargs={'slug': subcategory.slug})
+        return Response({"absolute_url": request.build_absolute_uri(url)})
+
+class ProductViewSet(ModelViewSet):
+    queryset = Product.objects.all() 
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['subcategory__category', 'price']
 
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        sku = self.kwargs.get('sku')
+        logger.info(f"Поиск продукта: slug={slug}, sku={sku}")
+        try:
+            product = Product.objects.get(slug=slug, sku=sku)
+            logger.info(f"Найден продукт: {product.name}")
+            return product
+        except Product.DoesNotExist:
+            logger.error(f"Продукт не найден: slug={slug}, sku={sku}")
+            raise
+
     def get_queryset(self):
-        queryset = super().get_queryset()
-        queryset = queryset.filter(stock__gt=0)
-        queryset = queryset.exclude(price=0)
-        queryset = queryset.order_by('-price')
+        queryset = Product.objects.all()  
+        subcategory_slug = self.request.query_params.get('subcategory_slug')
+        if subcategory_slug:
+            logger.info(f"Фильтр по subcategory_slug: {subcategory_slug}")
+            queryset = queryset.filter(subcategory__slug=subcategory_slug)
+        logger.info(f"Товаров в queryset: {queryset.count()}")
         return queryset
 
-    
     @action(detail=False, methods=['get'])
     def stats(self, request):
         stats = Product.objects.aggregate(
@@ -142,18 +93,32 @@ class ProductViewSet(ModelViewSet):
         )
         return Response(stats)
 
+    @action(detail=True, methods=['get'])
+    def get_absolute(self, request, slug=None, sku=None):
+        product = self.get_object()
+        url = reverse('product-detail', kwargs={'slug': product.slug, 'sku': product.sku})
+        return Response({"absolute_url": request.build_absolute_uri(url)})
+    
+    
 class CommentViewSet(ModelViewSet):
-    queryset = Comment.objects.all()
+    queryset = Comment.objects.filter(is_approved=True)
     serializer_class = CommentSerializer
 
 class CompositionViewSet(ModelViewSet):
     queryset = Composition.objects.all()
     serializer_class = CompositionSerializer
+    lookup_field = 'slug'
 
-    @action(detail=True, methods=['get'])
-    def get_absolute(self, request, pk=None):
-        composition = self.get_object()
-        return Response({"absolute_url": request.build_absolute_uri(composition.get_absolute_url())})
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        logger.info(f"Поиск композиции с slug: {slug}")
+        try:
+            composition = Composition.objects.get(slug=slug)
+            logger.info(f"Найдена композиция: {composition.name} (slug: {composition.slug})")
+            return composition
+        except Composition.DoesNotExist:
+            logger.error(f"Композиция с slug {slug} не найдена")
+            raise
 
 class CartViewSet(ModelViewSet):
     queryset = Cart.objects.all()
@@ -162,45 +127,3 @@ class CartViewSet(ModelViewSet):
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
-
-class CategoryViewSet(ModelViewSet):
-    queryset = Category.objects.filter(subcategories__isnull=False).distinct()
-    serializer_class = CategorySerializer
-    lookup_field = 'slug'  # Для категорий тоже используем slug
-
-    def get_serializer_context(self):
-        context = super().get_serializer_context()
-        context.update({"request": self.request})
-        return context
-
-    def get_object(self):
-        slug = self.kwargs.get('slug')
-        return Category.objects.get(name__iexact=slug)  # Ищем по имени
-
-    @action(detail=True, methods=['get'])
-    def get_absolute(self, request, slug=None):
-        category = self.get_object()
-        if not category.name:
-            return Response({"error": "Category name is empty"}, status=400)
-        slug_name = ru_slugify(category.name)
-        url = reverse('category-detail', kwargs={'slug': slug_name})
-        return Response({"absolute_url": request.build_absolute_uri(url)})
-
-class SubcategoryViewSet(ModelViewSet):
-    queryset = Subcategory.objects.all()
-    serializer_class = SubcategorySerializer
-    lookup_field = 'slug'  # Указываем, что используем slug
-
-    def get_object(self):
-        slug = self.kwargs.get('slug')
-        # Ищем подкатегорию, имя которой после slugify соответствует переданному slug
-        return Subcategory.objects.get(name__iexact=slug)
-
-    @action(detail=True, methods=['get'])
-    def get_absolute(self, request, slug=None):
-        subcategory = self.get_object()
-        if not subcategory.name:
-            return Response({"error": "Subcategory name is empty"}, status=400)
-        slug_name = ru_slugify(subcategory.name)
-        url = reverse('subcategory-detail', kwargs={'slug': slug_name})
-        return Response({"absolute_url": request.build_absolute_uri(url)})

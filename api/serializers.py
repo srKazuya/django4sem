@@ -1,5 +1,4 @@
 from django.urls import reverse
-from pytils.translit import slugify as ru_slugify
 from rest_framework import serializers
 from .models import (
     Category, Subcategory, Product, Comment, 
@@ -8,51 +7,66 @@ from .models import (
 )
 
 class SubcategoryShortSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Subcategory
-        fields = ('id', 'name')
-class SubcategorySerializer(serializers.ModelSerializer):
     absolute_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Subcategory
-        fields = ('id', 'name', 'absolute_url')
-
-    def get_absolute_url(self, obj):
-        request = self.context.get('request')
-        if not request:
-            return None  # Или обработайте ошибку иначе
-        slug_name = ru_slugify(obj.name)
-        url = reverse('subcategory-detail', kwargs={'slug': slug_name})
-        return request.build_absolute_uri(url)
-class CategorySerializer(serializers.ModelSerializer):
-    subcategories = SubcategorySerializer(many=True, read_only=True)
-    absolute_url = serializers.SerializerMethodField()  # Добавляем для категорий
-
-    class Meta:
-        model = Category
-        fields = ('id', 'name', 'subcategories', 'absolute_url')
+        fields = ('id', 'name', 'slug', 'absolute_url')
 
     def get_absolute_url(self, obj):
         request = self.context.get('request')
         if not request:
             return None
-        slug_name = ru_slugify(obj.name)
-        url = reverse('category-detail', kwargs={'slug': slug_name})
+        url = reverse('subcategory-detail', kwargs={'slug': obj.slug})
         return request.build_absolute_uri(url)
 
+class SubcategorySerializer(serializers.ModelSerializer):
+    absolute_url = serializers.SerializerMethodField()
 
+    class Meta:
+        model = Subcategory
+        fields = ('id', 'name', 'slug', 'absolute_url')
+
+    def get_absolute_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None
+        url = reverse('subcategory-detail', kwargs={'slug': obj.slug})
+        return request.build_absolute_uri(url)
+
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubcategoryShortSerializer(many=True, read_only=True)
+    absolute_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'slug', 'subcategories', 'absolute_url')
+
+    def get_absolute_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None
+        url = reverse('category-detail', kwargs={'slug': obj.slug})
+        return request.build_absolute_uri(url)
 
 class ProductSerializer(serializers.ModelSerializer):
-    subcategory = SubcategorySerializer(read_only=True)
-    image = serializers.ImageField(required=False)  
+    subcategory = SubcategoryShortSerializer(read_only=True)
+    absolute_url = serializers.SerializerMethodField()
+    image = serializers.ImageField(required=False)
 
     class Meta:
         model = Product
-        fields = '__all__'
+        fields = ('id', 'name', 'slug', 'sku', 'subcategory', 'price', 'stock', 'image', 'description', 'absolute_url')
+
+    def get_absolute_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None
+        url = reverse('product-detail', kwargs={'slug': obj.slug, 'sku': obj.sku})
+        return request.build_absolute_uri(url)
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True) 
+    user = serializers.StringRelatedField(read_only=True)
     product = ProductSerializer(read_only=True)
 
     class Meta:
@@ -90,10 +104,18 @@ class CartItemSerializer(serializers.ModelSerializer):
 class CompositionSerializer(serializers.ModelSerializer):
     designer = serializers.StringRelatedField(read_only=True)
     image = serializers.ImageField(required=False)
+    absolute_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Composition
-        fields = '__all__'
+        fields = ('id', 'name', 'slug', 'designer', 'created_at', 'image', 'absolute_url')
+
+    def get_absolute_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None
+        url = reverse('composition-detail', kwargs={'slug': obj.slug})
+        return request.build_absolute_uri(url)
 
 class CompositionItemSerializer(serializers.ModelSerializer):
     composition = CompositionSerializer(read_only=True)
