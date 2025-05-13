@@ -166,3 +166,41 @@ class CartItemViewSet(ModelViewSet):
 class CategoryViewSet(ModelViewSet):
     queryset = Category.objects.filter(subcategories__isnull=False).distinct()
     serializer_class = CategorySerializer
+    lookup_field = 'slug'  # Для категорий тоже используем slug
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        return Category.objects.get(name__iexact=slug)  # Ищем по имени
+
+    @action(detail=True, methods=['get'])
+    def get_absolute(self, request, slug=None):
+        category = self.get_object()
+        if not category.name:
+            return Response({"error": "Category name is empty"}, status=400)
+        slug_name = ru_slugify(category.name)
+        url = reverse('category-detail', kwargs={'slug': slug_name})
+        return Response({"absolute_url": request.build_absolute_uri(url)})
+
+class SubcategoryViewSet(ModelViewSet):
+    queryset = Subcategory.objects.all()
+    serializer_class = SubcategorySerializer
+    lookup_field = 'slug'  # Указываем, что используем slug
+
+    def get_object(self):
+        slug = self.kwargs.get('slug')
+        # Ищем подкатегорию, имя которой после slugify соответствует переданному slug
+        return Subcategory.objects.get(name__iexact=slug)
+
+    @action(detail=True, methods=['get'])
+    def get_absolute(self, request, slug=None):
+        subcategory = self.get_object()
+        if not subcategory.name:
+            return Response({"error": "Subcategory name is empty"}, status=400)
+        slug_name = ru_slugify(subcategory.name)
+        url = reverse('subcategory-detail', kwargs={'slug': slug_name})
+        return Response({"absolute_url": request.build_absolute_uri(url)})

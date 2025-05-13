@@ -1,3 +1,5 @@
+from django.urls import reverse
+from pytils.translit import slugify as ru_slugify
 from rest_framework import serializers
 from .models import (
     Category, Subcategory, Product, Comment, 
@@ -9,20 +11,37 @@ class SubcategoryShortSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subcategory
         fields = ('id', 'name')
-
-class CategorySerializer(serializers.ModelSerializer):
-    subcategories = SubcategoryShortSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = Category
-        fields = ('id', 'name', 'subcategories')
-
 class SubcategorySerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
+    absolute_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Subcategory
-        fields = '__all__'
+        fields = ('id', 'name', 'absolute_url')
+
+    def get_absolute_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None  # Или обработайте ошибку иначе
+        slug_name = ru_slugify(obj.name)
+        url = reverse('subcategory-detail', kwargs={'slug': slug_name})
+        return request.build_absolute_uri(url)
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubcategorySerializer(many=True, read_only=True)
+    absolute_url = serializers.SerializerMethodField()  # Добавляем для категорий
+
+    class Meta:
+        model = Category
+        fields = ('id', 'name', 'subcategories', 'absolute_url')
+
+    def get_absolute_url(self, obj):
+        request = self.context.get('request')
+        if not request:
+            return None
+        slug_name = ru_slugify(obj.name)
+        url = reverse('category-detail', kwargs={'slug': slug_name})
+        return request.build_absolute_uri(url)
+
+
 
 class ProductSerializer(serializers.ModelSerializer):
     subcategory = SubcategorySerializer(read_only=True)

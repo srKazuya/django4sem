@@ -1,17 +1,15 @@
 
 @use "../../styles/breakpoints" as *;
-.container {
-  padding: 2rem;
 
-  @include respond(md) {
-    padding: 4rem;
-  }
+a{
+  color: black;
+  text-decoration: none;
 }
-
 .mainCont {
-  background-color: #fff;
-  padding: 0;
+  background-color: #f8f8f8;
   width: 100%;
+  padding: 0 5%;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
 }
 
 %menu-base {
@@ -20,33 +18,39 @@
   width: 100%;
   justify-content: space-between;
   gap: 3.2rem;
+  margin: 0 12rem;
   align-items: end;
+
 }
 
 .menu {
   @extend %menu-base;
 }
 
-.leftMenu {
-  @extend %menu-base;
-  padding-right: 8rem;
-}
+// .leftMenu {
+//   @extend %menu-base;
+//   padding-right: 8rem;
+// }
 
-.rightMenu {
-  @extend %menu-base;
-  padding-left: 8rem;
-}
+// .rightMenu {
+//   @extend %menu-base;
+//   padding-left: 8rem;
+// }
+
 
 .nav {
-  margin-top: 4rem;
-  padding: 0 10vw;
-  max-width: 100%;
   display: flex;
   flex-wrap: nowrap;
-  // justify-content: space-around;
+  justify-content: space-around;
+  padding: 5rem 0;
+  @include respond(sm) {
+    // flex-wrap: wrap;
+  }
 }
 
 .menuItem {
+  font-weight: normal;
+  letter-spacing: 0.1rem;
   font-size: clamp(1.6rem, 2.4rem, 4rem);
   position: relative;
   cursor: pointer;
@@ -73,6 +77,7 @@
 
 
 .submenu {
+  font-weight: normal;
   list-style: none;
   position: absolute;
   top: 100%;
@@ -92,9 +97,8 @@
 }
 
 .logoCont {
-  min-width: 28.8rem;
-  width: auto;
-  max-width: 50.8rem;
+  min-width: clamp(20rem, 25vw, 25rem);
+  max-width: clamp(30rem, 40vw, 50.8rem);
   height: auto;
 }
 
@@ -111,5 +115,37 @@
   background-color: #f0f0f0;
 }
 
+.buttons {
+  display: flex;
+  gap: 2rem;
+  align-content: start;
+}
 
+.button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: end;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: auto;
+
+  & span{
+    font-size: 1.6rem;
+      @include respond(lg){
+        font-size: 1.3rem;
+      }
+      @include respond(xl){
+        font-size: 1.6rem;
+      }
+  }
+
+}
+
+.button img {
+  width: 24px;
+  height: 24px;
+}
 
