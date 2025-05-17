@@ -10,6 +10,7 @@ a{
   width: 100%;
   padding: 0 5%;
   filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.25));
+  position: relative;
 }
 
 %menu-base {
@@ -17,12 +18,12 @@ a{
   display: flex;
   width: 100%;
   justify-content: space-between;
-  gap: 3.2rem;
-  margin: 0 12rem;
   align-items: end;
-
+  flex-wrap: wrap;
 }
-
+header{
+  z-index: 10;
+}
 .menu {
   @extend %menu-base;
 }
@@ -43,8 +44,9 @@ a{
   flex-wrap: nowrap;
   justify-content: space-around;
   padding: 5rem 0;
+  gap: 6vw;
   @include respond(sm) {
-    // flex-wrap: wrap;
+    flex-wrap: wrap;
   }
 }
 
@@ -117,7 +119,7 @@ a{
 
 .buttons {
   display: flex;
-  gap: 2rem;
+  gap: 1vw;
   align-content: start;
 }
 
@@ -145,7 +147,6 @@ a{
 }
 
 .button img {
-  width: 24px;
-  height: 24px;
+  width:auto;
+  height: auto;
 }
-

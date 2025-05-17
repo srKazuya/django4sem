@@ -1,19 +1,37 @@
-// breakpoints.scss
-
 $breakpoints: (
-  xs: 0, //мобилочка
-  sm: 576px, // лил планш   
-  md: 768px, // Планшеты и маленькие ноутбуки
-  lg: 992px, // Ноутбуки
-  xl: 1200px, // Десктопы
-  xxl: 1400px, // Очень широкие экраны
+  sm: 0,
+  md: 768px,
+  lg: 992px,
+  xl: 1200px,
+  xxl: 1400px,
 );
 
+
+@function breakpoint-next($key) {
+  $keys: map-keys($breakpoints);
+  $index: index($keys, $key);
+
+  @if $index != null and $index < length($keys) {
+    @return map-get($breakpoints, nth($keys, $index + 1));
+  }
+
+  @return null;
+}
+
 @mixin respond($breakpoint) {
-  $value: map-get($breakpoints, $breakpoint);
-  @if $value != null {
-    @media (min-width: $value) {
-      @content;
+  $min: map-get($breakpoints, $breakpoint);
+  $max: breakpoint-next($breakpoint);
+
+  @if $min != null {
+    @if $max != null {
+      @media (min-width: $min) and (max-width: calc(#{$max} - 0.02px)) {
+        @content;
+      }
+    } @else {
+    
+      @media (min-width: $min) {
+        @content;
+      }
     }
   } @else {
     @warn "⚠️ Breakpoint '#{$breakpoint}' не найден в \$breakpoints.";
