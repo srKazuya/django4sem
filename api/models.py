@@ -46,6 +46,7 @@ class ProductManager(models.Manager):
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
+    
     slug = models.SlugField(max_length=255, blank=True)
     sku = models.CharField(max_length=50, unique=True, verbose_name='Артикул', default='000000')
     subcategory = models.ForeignKey('Subcategory', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
