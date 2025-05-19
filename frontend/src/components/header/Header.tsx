@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // Импорт useNavigate
 import axios from 'axios';
 import styles from './Header.module.scss';
 import logo from '@assets/img/logo.svg';
@@ -7,21 +8,9 @@ import profileIcon from '@assets/img/profile.svg';
 import busketIcon from '@assets/img/busket.svg';
 import { Link } from 'react-router-dom';
 
-interface Subcategory {
-  id: number;
-  name: string;
-  absolute_url?: string;
-}
-
-interface Category {
-  id: number;
-  name: string;
-  absolute_url?: string;
-  subcategories: Subcategory[];
-}
-
 const Header = () => {
   const [categories, setCategories] = useState<Category[]>([]);
+  const navigate = useNavigate(); // Инициализация useNavigate
 
   useEffect(() => {
     axios.get('http://127.0.0.1:8000/api/categories/')
@@ -38,13 +27,16 @@ const Header = () => {
     return <div>Загрузка...</div>;
   }
 
+  const handleLoginClick = () => {
+    navigate('/login'); // Переход на страницу входа
+  };
+
   return (
     <header className={styles.mainCont}>
       <nav className={styles.nav}>
         <div className={styles.logoCont}>
-          <Link
-          to ={``}
-          > <img src={logo} alt="Логотип" className={styles.logo} />
+          <Link to="">
+            <img src={logo} alt="Логотип" className={styles.logo} />
           </Link>
         </div>
 
@@ -88,7 +80,7 @@ const Header = () => {
             <img src={likeIcon} alt="Избранное" />
             <span>Избранное</span>
           </button>
-          <button className={styles.button}>
+          <button className={styles.button} onClick={handleLoginClick}>
             <img src={profileIcon} alt="Войти" />
             <span>Войти</span>
           </button>

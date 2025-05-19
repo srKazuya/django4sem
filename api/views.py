@@ -1,4 +1,7 @@
 import logging
+from rest_framework.views import APIView
+from rest_framework import status
+
 from django.urls import reverse
 from django.db.models import Count, Avg, Max
 from django_filters.rest_framework import DjangoFilterBackend
@@ -8,7 +11,7 @@ from rest_framework.decorators import action
 from .models import Category, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem
 from .serializers import (
     CategorySerializer, SubcategorySerializer, ProductSerializer, 
-    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer
+    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer, 
 )
 
 logger = logging.getLogger(__name__)
@@ -58,7 +61,7 @@ class SubcategoryViewSet(ModelViewSet):
         return Response({"absolute_url": request.build_absolute_uri(url)})
 
 class ProductViewSet(ModelViewSet):
-    queryset = Product.objects.all() 
+    queryset = Product.objects.select_related('subcategory').prefetch_related('attributes').all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_fields = ['subcategory__category', 'price']
@@ -127,3 +130,11 @@ class CartViewSet(ModelViewSet):
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
+    
+# class RegisterView(APIView):
+#     def post(self, request):
+#         serializer = RegisterSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response({"message": "Пользователь успешно зарегистрирован"}, status=status.HTTP_201_CREATED)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

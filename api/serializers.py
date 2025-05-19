@@ -5,6 +5,7 @@ from .models import (
     Attribute, ProductAttribute, Cart, CartItem, 
     Composition, CompositionItem
 )
+from django.contrib.auth.models import User
 
 class SubcategoryShortSerializer(serializers.ModelSerializer):
     absolute_url = serializers.SerializerMethodField()
@@ -124,3 +125,19 @@ class CompositionItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CompositionItem
         fields = '__all__'
+        
+        
+# class RegisterSerializer(serializers.ModelSerializer):
+#     password = serializers.CharField(write_only=True)
+
+#     class Meta:
+#         model = User
+#         fields = ['username', 'email', 'password']
+
+#     def create(self, validated_data):
+#         user = User.objects.create_user(
+#             username=validated_data['username'],
+#             email=validated_data['email'],
+#             password=validated_data['password']
+#         )
+#         return user

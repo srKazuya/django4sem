@@ -46,7 +46,11 @@ class ProductManager(models.Manager):
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
-    
+    attributes = models.ManyToManyField(
+        'Attribute',
+        through='ProductAttribute',
+        related_name='products'
+    )
     slug = models.SlugField(max_length=255, blank=True)
     sku = models.CharField(max_length=50, unique=True, verbose_name='Артикул', default='000000')
     subcategory = models.ForeignKey('Subcategory', on_delete=models.CASCADE, related_name='products', null=True, blank=True)
@@ -103,7 +107,11 @@ class Attribute(models.Model):
         verbose_name_plural = 'Атрибуты'
 
 class ProductAttribute(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='attributes')
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='product_attributes'  # Изменено related_name
+    )
     attribute = models.ForeignKey(Attribute, on_delete=models.CASCADE)
     value = models.CharField(max_length=255, default='N/A')
     
