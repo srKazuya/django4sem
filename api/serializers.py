@@ -3,16 +3,16 @@ from rest_framework import serializers
 from .models import (
     Category, Subcategory, Product, Comment, 
     Attribute, ProductAttribute, Cart, CartItem, 
-    Composition, CompositionItem
+    Composition, CompositionItem, 
 )
-from django.contrib.auth.models import User
+from users.models import User
 
 class SubcategoryShortSerializer(serializers.ModelSerializer):
     absolute_url = serializers.SerializerMethodField()
-
+    category_name = serializers.CharField(source='category.name', read_only=True)
     class Meta:
         model = Subcategory
-        fields = ('id', 'name', 'slug', 'absolute_url')
+        fields = ('id', 'name', 'slug', 'absolute_url', 'category_name')
 
     def get_absolute_url(self, obj):
         request = self.context.get('request')
@@ -23,10 +23,10 @@ class SubcategoryShortSerializer(serializers.ModelSerializer):
 
 class SubcategorySerializer(serializers.ModelSerializer):
     absolute_url = serializers.SerializerMethodField()
-
+    category_name = serializers.CharField(source='category.name', read_only=True)
     class Meta:
         model = Subcategory
-        fields = ('id', 'name', 'slug', 'absolute_url')
+        fields = ('id', 'name', 'slug', 'absolute_url', 'category_name')
 
     def get_absolute_url(self, obj):
         request = self.context.get('request')
@@ -63,17 +63,21 @@ class ProductSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if not request:
             return None
-        url = reverse('product-detail', kwargs={'slug': obj.slug, 'sku': obj.sku})
-        return request.build_absolute_uri(url)
+        # Формируем URL с учетом подкатегории
+        url = reverse('subcategory-detail', kwargs={'slug': obj.subcategory.slug})
+        product_url = f"{url}{obj.slug}/{obj.sku}/"
+        return request.build_absolute_uri(product_url)
 
 class CommentSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)
-    product = ProductSerializer(read_only=True)
+    user = serializers.CharField(source='user.username', read_only=True)
+    userId = serializers.IntegerField(source='user.id', read_only=True)  # Добавляем userId
+    product = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all())  
 
     class Meta:
         model = Comment
-        fields = '__all__'
-
+        fields = ['id', 'user', 'userId', 'product', 'text', 'rating', 'created_at', 'is_approved']
+        read_only_fields = ['id', 'user', 'userId', 'created_at', 'is_approved']
+        
 class AttributeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Attribute

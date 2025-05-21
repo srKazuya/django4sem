@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.contrib.auth.models import User
+from users.models import User
 from django.db.models import Avg
 from pytils.translit import slugify as ru_slugify
 from backend import settings
@@ -81,7 +81,7 @@ class Product(models.Model):
         unique_together = ('slug', 'sku')
         
 class Comment(models.Model):
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='comments', verbose_name='Пользователь')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='Пользователь')  # Используем кастомную модель
     text = models.TextField(verbose_name='Текст комментария')
     product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='comments', verbose_name='Продукт')
     rating = models.PositiveIntegerField(choices=((1, '1'), (2, '2'), (3, '3'), (4, '4'), (5, '5')), default=3, verbose_name='Рейтинг')

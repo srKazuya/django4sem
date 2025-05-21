@@ -6,6 +6,7 @@ import styles from './RegisterPage.module.scss';
 const RegisterPage = () => {
   const [formData, setFormData] = useState({ username: '', email: '', password: '' });
   const [message, setMessage] = useState('');
+  const [error, setError] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -14,12 +15,20 @@ const RegisterPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setMessage('');
+    setError('');
     try {
-      await axios.post('http://127.0.0.1:8000/api/users/register/', formData); 
-      setMessage('Регистрация успешна');
-      setTimeout(() => navigate('/login'), 2000);
-    } catch {
-      setMessage('Ошибка регистрации'); 
+      await axios.post('http://127.0.0.1:8000/api/users/register/', formData);
+      setMessage('Регистрация успешна!');
+      setTimeout(() => navigate('/login'), 1000); 
+    } catch (err: any) {
+      if (err.response && err.response.data) {
+        const errorMessages = Object.values(err.response.data).flat().join(' ');
+        setError(`Ошибка регистрации: ${errorMessages}`);
+      } else {
+
+        setError('Ошибка регистрации. Попробуйте снова.');
+      }
     }
   };
 
@@ -51,7 +60,8 @@ const RegisterPage = () => {
         <button type="submit" className={styles.button}>
           Зарегистрироваться
         </button>
-        {message && <p className={styles.message}>{message}</p>}
+        {message && <p className={styles.success}>{message}</p>}
+        {error && <p className={styles.error}>{error}</p>}
       </form>
     </div>
   );

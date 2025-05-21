@@ -1,6 +1,8 @@
 import logging
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 
 from django.urls import reverse
 from django.db.models import Count, Avg, Max
@@ -104,8 +106,18 @@ class ProductViewSet(ModelViewSet):
     
     
 class CommentViewSet(ModelViewSet):
-    queryset = Comment.objects.filter(is_approved=True)
+    queryset = Comment.objects.all()  # Показываем только одобренные комментарии
     serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly]  # Только авторизованные пользователи могут добавлять/редактировать/удалять
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)  # Устанавливаем текущего пользователя как автора комментария
+
+    def get_queryset(self):
+        product_id = self.request.query_params.get('product')
+        if product_id:
+            return self.queryset.filter(product_id=product_id)
+        return self.queryset
 
 class CompositionViewSet(ModelViewSet):
     queryset = Composition.objects.all()

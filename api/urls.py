@@ -10,21 +10,25 @@ router.register(r'subcategories', SubcategoryViewSet, basename='subcategory')
 router.register(r'comments', CommentViewSet, basename='comment')
 router.register(r'compositions', CompositionViewSet, basename='composition')
 
+
 category_list = CategoryViewSet.as_view({'get': 'list'})
 category_detail = CategoryViewSet.as_view({'get': 'retrieve'})
 subcategory_detail = SubcategoryViewSet.as_view({'get': 'retrieve'})
 product_list = ProductViewSet.as_view({'get': 'list'})
 product_detail = ProductViewSet.as_view({'get': 'retrieve'})
 composition_detail = CompositionViewSet.as_view({'get': 'retrieve'})
+comment_list = CommentViewSet.as_view({'get': 'retrieve'})
 
 urlpatterns = [
     path('', include(router.urls)),
     path('categories/', category_list, name='category-list'),
     path('category/<slug:slug>/', category_detail, name='category-detail'),
     path('subcategory/<slug:slug>/', subcategory_detail, name='subcategory-detail'),
+    path('subcategory/<slug:subcategory_slug>/<slug:slug>/<str:sku>/', product_detail, name='product-detail'),
     path('products/', product_list, name='product-list'),
     path('products/<slug:slug>/<str:sku>/', product_detail, name='product-detail'),
     path('composition/<slug:slug>/', composition_detail, name='composition-detail'),
+    path('comments/', comment_list, name='comment-list'),
     # path('register/', RegisterView.as_view(), name='register'),
     # path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

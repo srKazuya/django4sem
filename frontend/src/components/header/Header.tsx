@@ -1,5 +1,5 @@
 import { Key, useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Импорт useNavigate
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import styles from './Header.module.scss';
 import logo from '@assets/img/logo.svg';
@@ -10,12 +10,14 @@ import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [categories, setCategories] = useState<Category[]>([]);
-  const navigate = useNavigate(); // Инициализация useNavigate
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access')); // Проверяем токен при загрузке
+  const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('http://127.0.0.1:8000/api/categories/')
+    // Загружаем категории
+    axios
+      .get('http://127.0.0.1:8000/api/categories/')
       .then(response => {
-        console.log('API response:', response.data); // Для отладки
         setCategories(response.data);
       })
       .catch(error => {
@@ -23,13 +25,29 @@ const Header = () => {
       });
   }, []);
 
+  useEffect(() => {
+    // Периодически проверяем наличие токена в localStorage
+    const interval = setInterval(() => {
+      const tokenExists = !!localStorage.getItem('access');
+      setIsAuthenticated(tokenExists);
+    }, 500); // Проверяем каждые 500 мс
+
+    return () => clearInterval(interval); // Очищаем интервал при размонтировании компонента
+  }, []);
+
+  const handleLoginClick = () => {
+    navigate('/login');
+  };
+
+  const handleLogoutClick = () => {
+    localStorage.removeItem('access'); // Удаляем токен
+    setIsAuthenticated(false); // Обновляем состояние
+    navigate('/'); // Перенаправляем на главную страницу
+  };
+
   if (!categories.length) {
     return <div>Загрузка...</div>;
   }
-
-  const handleLoginClick = () => {
-    navigate('/login'); // Переход на страницу входа
-  };
 
   return (
     <header className={styles.mainCont}>
@@ -80,10 +98,17 @@ const Header = () => {
             <img src={likeIcon} alt="Избранное" />
             <span>Избранное</span>
           </button>
-          <button className={styles.button} onClick={handleLoginClick}>
-            <img src={profileIcon} alt="Войти" />
-            <span>Войти</span>
-          </button>
+          {isAuthenticated ? (
+            <button className={styles.button} onClick={handleLogoutClick}>
+              <img src={profileIcon} alt="Выйти" />
+              <span>Выйти</span>
+            </button>
+          ) : (
+            <button className={styles.button} onClick={handleLoginClick}>
+              <img src={profileIcon} alt="Войти" />
+              <span>Войти</span>
+            </button>
+          )}
           <button className={styles.button}>
             <img src={busketIcon} alt="Корзина" />
             <span>Корзина</span>

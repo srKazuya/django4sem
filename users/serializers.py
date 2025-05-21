@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from users.models import User  # Импортируйте кастомную модель
+from users.models import User  
 from django.db import IntegrityError
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -7,7 +7,7 @@ class RegisterSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=150, required=True)
 
     class Meta:
-        model = User  # Используйте кастомную модель
+        model = User  
         fields = ['username', 'email', 'password']
 
     def validate_username(self, value):
