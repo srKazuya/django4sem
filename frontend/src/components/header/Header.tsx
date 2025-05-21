@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { Key, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // Импорт useNavigate
 import axios from 'axios';
 import styles from './Header.module.scss';
@@ -55,7 +55,7 @@ const Header = () => {
               </Link>
               {category.subcategories.length > 0 && (
                 <ul className={styles.submenu}>
-                  {category.subcategories.map(subcategory => (
+                  {category.subcategories.map((subcategory: { id: Key | null | undefined; absolute_url: string | URL; name: unknown; }) => (
                     <li key={subcategory.id} className={styles.submenuItem}>
                       <Link
                         to={

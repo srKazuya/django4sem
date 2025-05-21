@@ -7,6 +7,7 @@ interface Subcategory {
     id: number;
     name: string;
     slug: string;
+    category_name: string;
     absolute_url?: string;
 }
 
@@ -68,11 +69,11 @@ const SubcategoryPage = () => {
 
     return (
         <div className={styles.container}>
-            {/* Заголовок */}
             <div className={styles.header}>
-                <h1>{subcategory.name}</h1>
-                <h2>ИНТЕРЬЕР</h2>
-                <h3>МЕБЕЛЬ</h3>
+                <h1>{subcategory.category_name}</h1>
+                <h2>{subcategory.name}</h2>
+                {/* <h2>ИНТЕРЬЕР</h2>
+                <h3>МЕБЕЛЬ</h3> */}
             </div>
 
             {/* Бегущая строка с продуктами */}
