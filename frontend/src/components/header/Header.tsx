@@ -13,8 +13,9 @@ const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access')); // Проверяем токен при загрузке
   const navigate = useNavigate();
 
+
   useEffect(() => {
-    // Загружаем категории
+
     axios
       .get('http://127.0.0.1:8000/api/categories/')
       .then(response => {
@@ -26,13 +27,12 @@ const Header = () => {
   }, []);
 
   useEffect(() => {
-    // Периодически проверяем наличие токена в localStorage
     const interval = setInterval(() => {
       const tokenExists = !!localStorage.getItem('access');
       setIsAuthenticated(tokenExists);
-    }, 500); // Проверяем каждые 500 мс
+    }, 500); 
 
-    return () => clearInterval(interval); // Очищаем интервал при размонтировании компонента
+    return () => clearInterval(interval); 
   }, []);
 
   const handleLoginClick = () => {
@@ -40,9 +40,9 @@ const Header = () => {
   };
 
   const handleLogoutClick = () => {
-    localStorage.removeItem('access'); // Удаляем токен
-    setIsAuthenticated(false); // Обновляем состояние
-    navigate('/'); // Перенаправляем на главную страницу
+    localStorage.removeItem('access'); 
+    setIsAuthenticated(false); 
+    navigate('/'); 
   };
 
   if (!categories.length) {

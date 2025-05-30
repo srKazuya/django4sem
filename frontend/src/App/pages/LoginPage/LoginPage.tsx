@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // Импорт useNavigate
+import { useNavigate } from 'react-router-dom'; 
 import axios from 'axios';
-import styles from './LoginPage.module.scss'; // Подключение стилей
+import styles from './LoginPage.module.scss'; 
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({ username: '', password: '' });
   const [message, setMessage] = useState('');
-  const navigate = useNavigate(); // Инициализация useNavigate
+  const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -19,13 +19,14 @@ const LoginPage = () => {
       localStorage.setItem('access', response.data.access);
       localStorage.setItem('refresh', response.data.refresh);
       setMessage('Успешный вход');
+      navigate('/');
     } catch (error) {
       setMessage('Ошибка авторизации');
     }
   };
 
   const handleRegisterRedirect = () => {
-    navigate('/register'); // Переход на страницу регистрации
+    navigate('/register');
   };
 
   return (

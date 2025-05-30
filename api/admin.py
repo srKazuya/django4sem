@@ -3,6 +3,7 @@ from .models import (
     Category, Subcategory, Product, Attribute, ProductAttribute, Comment,
     Cart, CartItem, Composition, CompositionItem
 )
+from .pdf_utils import generate_products_pdf
 
 # Inline для CartItem в CartAdmin
 class CartItemInline(admin.TabularInline):
@@ -33,10 +34,15 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = ("subcategory", "price")
     search_fields = ("name", "sku", "description")
     raw_id_fields = ("subcategory",)
-    
+    actions = ["export_pdf_action"]
+
     @admin.display(description="Изображение")
     def get_image(self, obj):
         return obj.image.url if obj.image else "Нет изображения"
+
+    def export_pdf_action(self, request, queryset):
+        return generate_products_pdf(queryset)
+    export_pdf_action.short_description = "Экспортировать выбранные товары в PDF"
 
 
 @admin.register(Attribute)

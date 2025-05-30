@@ -57,6 +57,7 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     stock = models.PositiveIntegerField(default=0)
     image = models.ImageField(upload_to='products/', null=True, blank=True, default=None)
+    instruction_document = models.FileField(upload_to='product_instructions/', null=True, blank=True, default=None)
     description = models.TextField(blank=True, null=True)
 
     objects = ProductManager()
@@ -74,11 +75,7 @@ class Product(models.Model):
                 counter += 1
             self.slug = slug
         super().save(*args, **kwargs)
-    
-    class Meta:
-        verbose_name = 'Продукт'
-        verbose_name_plural = 'Продукты'
-        unique_together = ('slug', 'sku')
+        
         
 class Comment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments', verbose_name='Пользователь')  # Используем кастомную модель
