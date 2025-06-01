@@ -2,6 +2,7 @@ from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from .views import ProductViewSet, CommentViewSet, CompositionViewSet, CategoryViewSet, SubcategoryViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from .views import HighRatingProductsView, SearchProductsView, UpdateProductPriceView, DeleteProductView
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='product')
@@ -32,4 +33,9 @@ urlpatterns = [
     # path('register/', RegisterView.as_view(), name='register'),
     # path('login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-]
+
+    path('products/high-rating/', HighRatingProductsView.as_view(), name='high_rating_products'),
+    path('products/search/', SearchProductsView.as_view(), name='search_products'),
+    path('products/update-price/', UpdateProductPriceView.as_view(), name='update_product_price'),
+    path('products/delete/', DeleteProductView.as_view(), name='delete_product'),
+] + router.urls

@@ -20,6 +20,7 @@ const LoginPage = () => {
       localStorage.setItem('refresh', response.data.refresh);
       setMessage('Успешный вход');
       navigate('/');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setMessage('Ошибка авторизации');
     }

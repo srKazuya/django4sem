@@ -52,6 +52,13 @@ FILER_STORAGES = {
     },
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',  
+        'LOCATION': 'unique-snowflake',
+    }
+}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

@@ -104,14 +104,74 @@ class ProductViewSet(ModelViewSet):
         url = reverse('product-detail', kwargs={'slug': product.slug, 'sku': product.sku})
         return Response({"absolute_url": request.build_absolute_uri(url)})
     
+    @action(detail=False, methods=['get'])
+    def high_rating(self, request):
+        products = Product.objects.with_high_rating()
+        if not products.exists():
+            return Response({"message": "No products with high rating found."}, status=status.HTTP_404_NOT_FOUND)
+        data = [
+            {
+                "name": product.name,
+                "price": product.price,
+                "rating": product.comments.aggregate(avg_rating=Avg('rating'))['avg_rating']
+            }
+            for product in products
+        ]
+        return Response(data, status=status.HTTP_200_OK)
     
-class CommentViewSet(ModelViewSet):
-    queryset = Comment.objects.all()  # Показываем только одобренные комментарии
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]  # Только авторизованные пользователи могут добавлять/редактировать/удалять
+    @action(detail=False, methods=['get'])
+    def search(self, request):
+        query = request.query_params.get('query', '')
+        products = Product.objects.search_by_name(query)
+        data = [
+            {
+                "name": product.name,
+                "price": product.price
+            }
+            for product in products
+        ]
+        return Response(data, status=status.HTTP_200_OK)
 
+    @action(detail=False, methods=['get'])
+    def values(self, request):
+        data = Product.objects.get_values()
+        return Response(data)
+
+    @action(detail=False, methods=['get'])
+    def values_list(self, request):
+        data = Product.objects.get_values_list()
+        return Response(data)
+
+    @action(detail=False, methods=['get'])
+    def count(self, request):
+        count = Product.objects.count_products()
+        return Response({"count": count})
+
+    @action(detail=False, methods=['get'])
+    def exists(self, request):
+        name = request.query_params.get('name', '')
+        exists = Product.objects.exists_product(name)
+        return Response({"exists": exists})
+
+    @action(detail=False, methods=['patch'])
+    def update_price(self, request):
+        name = request.data.get('name')
+        new_price = request.data.get('new_price')
+        updated = Product.objects.update_price(name, new_price)
+        return Response({"updated": updated})
+
+    @action(detail=False, methods=['delete'])
+    def delete(self, request):
+        name = request.data.get('name')
+        deleted, _ = Product.objects.delete_by_name(name)
+        return Response({"deleted": deleted})
+
+class CommentViewSet(ModelViewSet):
+    queryset = Comment.objects.all() 
+    serializer_class = CommentSerializer
+    permission_classes = [IsAuthenticatedOrReadOnly] 
     def perform_create(self, serializer):
-        serializer.save(user=self.request.user)  # Устанавливаем текущего пользователя как автора комментария
+        serializer.save(user=self.request.user)  
 
     def get_queryset(self):
         product_id = self.request.query_params.get('product')
@@ -142,7 +202,54 @@ class CartViewSet(ModelViewSet):
 class CartItemViewSet(ModelViewSet):
     queryset = CartItem.objects.all()
     serializer_class = CartItemSerializer
-    
+
+class HighRatingProductsView(APIView):
+    def get(self, request):
+        products = Product.objects.with_high_rating()
+        data = [
+            {
+                "name": product.name,
+                "price": product.price,
+                "rating": product.comments.aggregate(avg_rating=Avg('rating'))['avg_rating']
+            }
+            for product in products
+        ]
+        return Response(data, status=status.HTTP_200_OK)
+
+class SearchProductsView(APIView):
+    def get(self, request):
+        query = request.query_params.get('query', '')
+        products = Product.objects.search_by_name(query)
+        data = [
+            {
+                "name": product.name,
+                "price": product.price
+            }
+            for product in products
+        ]
+        return Response(data, status=status.HTTP_200_OK)
+
+class UpdateProductPriceView(APIView):
+    def patch(self, request):
+        name = request.data.get('name')
+        new_price = request.data.get('new_price')
+        if not name or not new_price:
+            return Response({"error": "Name and new_price are required"}, status=status.HTTP_400_BAD_REQUEST)
+        updated = Product.objects.update_price(name, new_price)
+        if updated:
+            return Response({"message": "Price updated successfully"}, status=status.HTTP_200_OK)
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class DeleteProductView(APIView):
+    def delete(self, request):
+        name = request.data.get('name')
+        if not name:
+            return Response({"error": "Name is required"}, status=status.HTTP_400_BAD_REQUEST)
+        deleted, _ = Product.objects.delete_by_name(name)
+        if deleted:
+            return Response({"message": "Product deleted successfully"}, status=status.HTTP_200_OK)
+        return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
 # class RegisterView(APIView):
 #     def post(self, request):
 #         serializer = RegisterSerializer(data=request.data)

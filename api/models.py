@@ -43,6 +43,26 @@ class ProductManager(models.Manager):
     def with_high_rating(self):
         return self.annotate(avg_rating=Avg('comments__rating')).filter(avg_rating__gte=4)
 
+    def search_by_name(self, query):
+        return self.filter(name__icontains=query)  
+
+    def get_values(self):
+        return self.values('name', 'price')  
+
+    def get_values_list(self):
+        return self.values_list('name', flat=True)  
+
+    def count_products(self):
+        return self.count() 
+
+    def exists_product(self, name):
+        return self.filter(name=name).exists()  
+
+    def update_price(self, name, new_price):
+        return self.filter(name=name).update(price=new_price)  
+
+    def delete_by_name(self, name):
+        return self.filter(name=name).delete() 
 
 class Product(models.Model):
     name = models.CharField(max_length=255)
@@ -59,12 +79,13 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/', null=True, blank=True, default=None)
     instruction_document = models.FileField(upload_to='product_instructions/', null=True, blank=True, default=None)
     description = models.TextField(blank=True, null=True)
+    url = models.URLField(max_length=200, blank=True, null=True, verbose_name="URL")  # Добавлено поле URLField
 
     objects = ProductManager()
 
     def __str__(self):
         return f"{self.name} ({self.sku})"
-    
+
     def save(self, *args, **kwargs):
         if not self.slug:
             base_slug = ru_slugify(self.name)
