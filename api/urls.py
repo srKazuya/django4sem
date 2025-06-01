@@ -40,4 +40,5 @@ urlpatterns = [
     path('products/search/', SearchProductsView.as_view(), name='search_products'),
     path('products/update-price/', UpdateProductPriceView.as_view(), name='update_product_price'),
     path('products/delete/', DeleteProductView.as_view(), name='delete_product'),
+    path('products/new/', ProductViewSet.as_view({'get': 'new_products'}), name='new_products'),
 ] + router.urls

@@ -1,3 +1,5 @@
+@use "@styles/breakpoints" as *;
+
 .backCont {
   width: 100%;
   margin: 0;
@@ -25,16 +27,21 @@ figcaption {
   position: relative;
   cursor: pointer;
   text-transform: uppercase;
-  
-
 }
-  .mainImg {
-    width: 100%;
-  }
+.mainImg {
+  width: 100%;
+}
 .main_cont {
   justify-content: space-between;
   display: flex;
   flex-direction: row;
   margin: 6rem;
-}
+  flex-wrap: wrap;
+  width: auto;
+  @include respond(sm) {
+    flex-direction: column;
+  }
+  //   @include respond(lg) {
 
+  // }
+}

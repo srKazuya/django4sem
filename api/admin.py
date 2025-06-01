@@ -30,7 +30,8 @@ class SubcategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ("name", "sku", "subcategory", "price", "stock", "get_image")
+    list_display = ("name", "sku", "subcategory", "price", "stock", "get_image", "created_at")
+    # readonly_fields = ('created_at',)
     list_filter = ("subcategory", "price")
     search_fields = ("name", "sku", "description")
     raw_id_fields = ("subcategory",)

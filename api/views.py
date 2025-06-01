@@ -183,6 +183,33 @@ class ProductViewSet(ModelViewSet):
         deleted, _ = Product.objects.delete_by_name(name)
         return Response({"deleted": deleted})
 
+    @action(detail=False, methods=['get'])
+    def new_products(self, request):
+        from datetime import timedelta
+        from django.utils.timezone import now
+
+        one_week_ago = now() - timedelta(days=7)
+        products = Product.objects.filter(created_at__gte=one_week_ago)
+
+        if not products.exists():
+            return Response({"message": "No new products found."}, status=status.HTTP_404_NOT_FOUND)
+
+        data = [
+            {
+                "image": request.build_absolute_uri(product.image.url) if product.image else None,
+                "name": product.name,
+                "price": product.price,
+                "rating": product.comments.aggregate(avg_rating=Avg('rating'))['avg_rating'],
+                "absolute_url": request.build_absolute_uri(reverse('product-detail', kwargs={"slug": product.slug, "sku": product.sku})),
+                "subcategory": {"slug": product.subcategory.slug if product.subcategory else "undefined"},
+                "slug": product.slug if product.slug else "undefined",
+                "sku": product.sku if product.sku else "undefined"
+            }
+            for product in products
+        ]
+
+        return Response(data, status=status.HTTP_200_OK)
+
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all() 
     serializer_class = CommentSerializer

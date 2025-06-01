@@ -3,7 +3,7 @@ import styles from './Main.module.scss';
 import PopularProductsWidget from './components/PopularProductsWidget';
 import PromotionWidget from './components/PromotionWidget';
 import NewProductsWidget from './components/NewProductsWidget';
-import bgImg from '@assets/img/scandica_matias_1.jpg'
+// import bgImg from '@assets/img/scandica_matias_1.jpg'
 
 
 
@@ -16,9 +16,10 @@ const Main = () => {
         <img className={styles.mainImg} src={bgImg} alt="" />
         </figure> */}
         <PopularProductsWidget />
+        <NewProductsWidget />
+        <PromotionWidget /> 
     </div>;
-        {/* <PromotionWidget /> */}
-        {/* <NewProductsWidget /> */}
+
 };
 
 export default Main;

@@ -80,6 +80,7 @@ class Product(models.Model):
     instruction_document = models.FileField(upload_to='product_instructions/', null=True, blank=True, default=None)
     description = models.TextField(blank=True, null=True)
     url = models.URLField(max_length=200, blank=True, null=True, verbose_name="URL")  # Добавлено поле URLField
+    created_at = models.DateTimeField(null=True, blank=True)
 
     objects = ProductManager()
 
@@ -199,6 +200,7 @@ class CompositionItem(models.Model):
         verbose_name_plural = 'Товары в композиции'
 
 class Promotion(models.Model):
+    image = models.ImageField(upload_to='promotion/', null=True, blank=True, default=None)
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField(blank=True, null=True)
     discount_percentage = models.DecimalField(max_digits=5, decimal_places=2, default=0.00)
