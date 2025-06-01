@@ -2,7 +2,6 @@
   width: 100%;
   margin: 0;
   padding: 0;
-
 }
 .backImg {
   width: 100%;
@@ -10,3 +9,32 @@
   object-fit: cover;
   display: block;
 }
+
+figure {
+  margin: 0;
+  display: flex;
+  width: 70%;
+  flex-direction: column;
+  gap: 2rem;
+}
+figcaption {
+  width: auto;
+  font-weight: normal;
+  letter-spacing: 0.1rem;
+  font-size: clamp(1.6rem, 2.4rem, 4rem);
+  position: relative;
+  cursor: pointer;
+  text-transform: uppercase;
+  
+
+}
+  .mainImg {
+    width: 100%;
+  }
+.main_cont {
+  justify-content: space-between;
+  display: flex;
+  flex-direction: row;
+  margin: 6rem;
+}
+

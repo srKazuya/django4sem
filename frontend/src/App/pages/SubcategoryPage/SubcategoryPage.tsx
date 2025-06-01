@@ -1,4 +1,4 @@
-import  { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import axios from 'axios';
 import styles from './SubcategoryPage.module.scss';
@@ -109,9 +109,7 @@ const SubcategoryPage = () => {
                         <div key={product.id} className={styles.productCard}>
                             <Link
                                 to={
-                                    product.absolute_url
-                                        ? new URL(product.absolute_url).pathname.replace('/api', '')
-                                        : `/subcategory/${subcategory.slug}/${product.slug}/${product.sku}`
+                                    `/subcategory/${subcategory.slug}/${product.slug}/${product.sku}`
                                 }
                                 className={styles.cardLink}
                             >

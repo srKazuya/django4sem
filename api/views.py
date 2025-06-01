@@ -109,14 +109,31 @@ class ProductViewSet(ModelViewSet):
         products = Product.objects.with_high_rating()
         if not products.exists():
             return Response({"message": "No products with high rating found."}, status=status.HTTP_404_NOT_FOUND)
-        data = [
-            {
-                "name": product.name,
-                "price": product.price,
-                "rating": product.comments.aggregate(avg_rating=Avg('rating'))['avg_rating']
-            }
-            for product in products
-        ]
+        data = []
+        for product in products:
+            try:
+                data.append({
+                    "image": request.build_absolute_uri(product.image.url) if product.image else None,
+                    "name": product.name,
+                    "price": product.price,
+                    "rating": product.comments.aggregate(avg_rating=Avg('rating'))['avg_rating'],
+                    "absolute_url": request.build_absolute_uri(reverse('product-detail', kwargs={"slug": product.slug, "sku": product.sku})),
+                    "subcategory": {"slug": product.subcategory.slug if product.subcategory else "undefined"},
+                    "slug": product.slug if product.slug else "undefined",
+                    "sku": product.sku if product.sku else "undefined"
+                })
+            except UnicodeDecodeError as e:
+                logger.error(f"Encoding error for product {product.id}: {e}")
+                data.append({
+                    "image": None,
+                    "name": "Encoding Error",
+                    "price": "N/A",
+                    "rating": None,
+                    "absolute_url": None,
+                    "subcategory": {"slug": "undefined"},
+                    "slug": "undefined",
+                    "sku": "undefined"
+                })
         return Response(data, status=status.HTTP_200_OK)
     
     @action(detail=False, methods=['get'])
