@@ -10,10 +10,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Category, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem
+from .models import Category, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem, Promotion
 from .serializers import (
     CategorySerializer, SubcategorySerializer, ProductSerializer, 
-    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer, 
+    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer, PromotionSerializer
 )
 
 logger = logging.getLogger(__name__)
@@ -249,6 +249,10 @@ class DeleteProductView(APIView):
         if deleted:
             return Response({"message": "Product deleted successfully"}, status=status.HTTP_200_OK)
         return Response({"error": "Product not found"}, status=status.HTTP_404_NOT_FOUND)
+
+class PromotionViewSet(ModelViewSet):
+    queryset = Promotion.objects.all()
+    serializer_class = PromotionSerializer
 
 # class RegisterView(APIView):
 #     def post(self, request):

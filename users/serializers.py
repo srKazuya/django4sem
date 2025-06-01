@@ -18,9 +18,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         try:
             user = User.objects.create_user(
-                username=validated_data['username'],
+                username=validated_data['username'],  # Set username to the same as the name
                 email=validated_data.get('email', ''),
                 password=validated_data['password'],
+                first_name=validated_data['username'],  # Set first_name to match username
             )
             return user
         except IntegrityError:

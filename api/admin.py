@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Category, Subcategory, Product, Attribute, ProductAttribute, Comment,
-    Cart, CartItem, Composition, CompositionItem
+    Cart, CartItem, Composition, CompositionItem, Promotion
 )
 from .pdf_utils import generate_products_pdf
 
@@ -93,3 +93,9 @@ class CommentAdmin(admin.ModelAdmin):
     list_display = ('user', 'product', 'created_at', 'is_approved')
     search_fields = ('user__username', 'product__name', 'text')
     list_filter = ('is_approved', 'created_at')
+
+@admin.register(Promotion)
+class PromotionAdmin(admin.ModelAdmin):
+    list_display = ('name', 'discount_percentage', 'start_date', 'end_date', 'is_active')
+    list_filter = ('is_active', 'start_date', 'end_date')
+    search_fields = ('name', 'description')

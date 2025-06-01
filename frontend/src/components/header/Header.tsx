@@ -64,7 +64,7 @@ const Header = () => {
               <Link
                 to={
                   category.absolute_url
-                    ? new URL(category.absolute_url).pathname.replace('/api', '')
+                    ? new URL(category.absolute_url).pathname.replace('/api/categories', 'category')
                     : `/category/${category.id}`
                 }
                 className={styles.menuLink}
@@ -78,7 +78,7 @@ const Header = () => {
                       <Link
                         to={
                           subcategory.absolute_url
-                            ? new URL(subcategory.absolute_url).pathname.replace('/api', '')
+                            ? new URL(subcategory.absolute_url).pathname.replace('/api/subcategories', 'subcategory')
                             : `/subcategory/${subcategory.id}`
                         }
                         className={styles.submenuLink}

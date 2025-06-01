@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import (
     Category, Subcategory, Product, Comment, 
     Attribute, ProductAttribute, Cart, CartItem, 
-    Composition, CompositionItem, 
+    Composition, CompositionItem, Promotion
 )
 from users.models import User
 
@@ -130,6 +130,10 @@ class CompositionItemSerializer(serializers.ModelSerializer):
         model = CompositionItem
         fields = '__all__'
         
+class PromotionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Promotion
+        fields = '__all__'
         
 # class RegisterSerializer(serializers.ModelSerializer):
 #     password = serializers.CharField(write_only=True)
