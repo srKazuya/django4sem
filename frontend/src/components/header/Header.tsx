@@ -5,12 +5,14 @@ import styles from './Header.module.scss';
 import logo from '@assets/img/logo.svg';
 import likeIcon from '@assets/img/like.svg';
 import profileIcon from '@assets/img/profile.svg';
+import burger from '@assets/img/burger.svg'
 import busketIcon from '@assets/img/busket.svg';
 import { Link } from 'react-router-dom';
 
 const Header = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('access')); // Проверяем токен при загрузке
+  const [isMenuOpen, setIsMenuOpen] = useState(false); // Состояние для бургер-меню
   const navigate = useNavigate();
 
 
@@ -30,9 +32,9 @@ const Header = () => {
     const interval = setInterval(() => {
       const tokenExists = !!localStorage.getItem('access');
       setIsAuthenticated(tokenExists);
-    }, 500); 
+    }, 500);
 
-    return () => clearInterval(interval); 
+    return () => clearInterval(interval);
   }, []);
 
   const handleLoginClick = () => {
@@ -40,9 +42,13 @@ const Header = () => {
   };
 
   const handleLogoutClick = () => {
-    localStorage.removeItem('access'); 
-    setIsAuthenticated(false); 
-    navigate('/'); 
+    localStorage.removeItem('access');
+    setIsAuthenticated(false);
+    navigate('/');
+  };
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
   };
 
   if (!categories.length) {
@@ -58,7 +64,11 @@ const Header = () => {
           </Link>
         </div>
 
-        <ul className={styles.menu}>
+        <button className={styles.burgerButton} onClick={toggleMenu}>
+          <img src={burger} alt="Меню" />
+        </button>
+
+        <ul className={`${styles.menu} ${isMenuOpen ? styles.menuOpen : ''}`}>
           {categories.map(category => (
             <li key={category.id} className={styles.menuItem}>
               <Link
@@ -93,7 +103,7 @@ const Header = () => {
           ))}
         </ul>
 
-        <div className={styles.buttons}>
+        <div className={styles.buttonsDesktop}> 
           <button className={styles.button}>
             <img src={likeIcon} alt="Избранное" />
             <span>Избранное</span>
@@ -115,6 +125,28 @@ const Header = () => {
           </button>
         </div>
       </nav>
+
+      <div className={styles.buttonsMobile}> {/* Добавлен контейнер для мобильной версии */}
+        <button className={styles.button}>
+          <img src={likeIcon} alt="Избранное" />
+          <span>Избранное</span>
+        </button>
+        {isAuthenticated ? (
+          <button className={styles.button} onClick={handleLogoutClick}>
+            <img src={profileIcon} alt="Выйти" />
+            <span>Выйти</span>
+          </button>
+        ) : (
+          <button className={styles.button} onClick={handleLoginClick}>
+            <img src={profileIcon} alt="Войти" />
+            <span>Войти</span>
+          </button>
+        )}
+        <button className={styles.button}>
+          <img src={busketIcon} alt="Корзина" />
+          <span>Корзина</span>
+        </button>
+      </div>
     </header>
   );
 };

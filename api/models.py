@@ -79,7 +79,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/', null=True, blank=True, default=None)
     instruction_document = models.FileField(upload_to='product_instructions/', null=True, blank=True, default=None)
     description = models.TextField(blank=True, null=True)
-    url = models.URLField(max_length=200, blank=True, null=True, verbose_name="URL")  # Добавлено поле URLField
+    url = models.URLField(max_length=200, blank=True, null=True, verbose_name="URL")  
     created_at = models.DateTimeField(null=True, blank=True)
 
     objects = ProductManager()
