@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
-    Category, Subcategory, Product, Attribute, ProductAttribute, Comment,
-    Cart, CartItem, Composition, CompositionItem, Promotion
+    Category, Order, Subcategory, Product, Attribute, ProductAttribute, Comment,
+    Cart, CartItem, Composition, CompositionItem, Promotion, OrderItem
 )
 from .pdf_utils import generate_products_pdf
 
@@ -16,6 +16,11 @@ class CompositionItemInline(admin.TabularInline):
     model = CompositionItem
     extra = 1
     raw_id_fields = ("product",)
+
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
+    extra = 1
+    raw_id_fields = ('product',)
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -100,3 +105,11 @@ class PromotionAdmin(admin.ModelAdmin):
     list_display = ('name', 'discount_percentage', 'start_date', 'end_date', 'is_active')
     list_filter = ('is_active', 'start_date', 'end_date')
     search_fields = ('name', 'description')
+    
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'address', 'created_at', 'total_price')
+    list_filter = ('created_at', 'user')
+    search_fields = ('user__username', 'address')
+    date_hierarchy = 'created_at'
+    inlines = [OrderItemInline]

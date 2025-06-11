@@ -1,11 +1,12 @@
 from django.urls import reverse
 from rest_framework import serializers
 from .models import (
-    Category, Subcategory, Product, Comment, 
+    Category, Order, OrderItem, Subcategory, Product, Comment, 
     Attribute, ProductAttribute, Cart, CartItem, 
     Composition, CompositionItem, Promotion
 )
 from users.models import User
+from typing import Any, Dict
 
 class SubcategoryShortSerializer(serializers.ModelSerializer):
     absolute_url = serializers.SerializerMethodField()
@@ -14,7 +15,7 @@ class SubcategoryShortSerializer(serializers.ModelSerializer):
         model = Subcategory
         fields = ('id', 'name', 'slug', 'absolute_url', 'category_name')
 
-    def get_absolute_url(self, obj):
+    def get_absolute_url(self, obj: Subcategory) -> str | None:
         request = self.context.get('request')
         if not request:
             return None
@@ -80,11 +81,11 @@ class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = CartItem
         fields = ['id', 'cart', 'product', 'product_id', 'quantity']
-    def validate(self, data):
+    def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
         product = data.get('product')
         quantity = data.get('quantity')
 
-        if product.stock < quantity:  
+        if product.stock < quantity:
             raise serializers.ValidationError({
                 'quantity': f'На складе доступно только {product.stock} шт.'
             })
@@ -100,7 +101,9 @@ class CartSerializer(serializers.ModelSerializer):
     class Meta:
         model = Cart
         fields = ['id', 'user', 'created_at', 'items']
-        
+    def get_total_price(self, obj):
+        return sum(item.product.price * item.quantity for item in obj.items.all())
+
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
     userId = serializers.IntegerField(source='user.id', read_only=True)  # Добавляем userId
@@ -153,17 +156,32 @@ class PromotionSerializer(serializers.ModelSerializer):
         model = Promotion
         fields = '__all__'
         
-# class RegisterSerializer(serializers.ModelSerializer):
-#     password = serializers.CharField(write_only=True)
+        
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
 
-#     class Meta:
-#         model = User
-#         fields = ['username', 'email', 'password']
+    class Meta:
+        model = OrderItem
+        fields = ['product', 'quantity', 'price']
 
-#     def create(self, validated_data):
-#         user = User.objects.create_user(
-#             username=validated_data['username'],
-#             email=validated_data['email'],
-#             password=validated_data['password']
-#         )
-#         return user
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'user', 'address', 'created_at', 'total_price', 'items']
+        read_only_fields = ['user', 'created_at', 'total_price']
+
+    def validate_address(self, value: str) -> str:
+        if len(value.strip()) < 3:
+            raise serializers.ValidationError("Адрес должен содержать минимум 3 символа.")
+        return value
+
+    def validate(self, data):
+        total_price = data.get('total_price')
+        if total_price is not None:
+            if total_price < 500:
+                raise serializers.ValidationError("Сумма заказа должна быть не меньше 500 рублей.")
+            if total_price > 1_000_000:
+                raise serializers.ValidationError("Сумма заказа не может превышать 1 000 000 рублей.")
+        return data

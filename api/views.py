@@ -2,17 +2,19 @@ import logging
 from rest_framework.views import APIView
 from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
-
-
+from django.db.models import Avg, Sum
+from django.db.models.functions import Coalesce
 from django.urls import reverse
 from django.db.models import Count, Avg, Max
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from .models import Category, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem, Promotion
+
+from api.filters import ProductFilter
+from .models import Category, Order, OrderItem, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem, Promotion
 from .serializers import (
-    CategorySerializer, SubcategorySerializer, ProductSerializer, 
+    CategorySerializer, OrderSerializer, SubcategorySerializer, ProductSerializer, 
     CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer, PromotionSerializer
 )
 
@@ -66,6 +68,7 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.select_related('subcategory').prefetch_related('attributes').all()
     serializer_class = ProductSerializer
     filter_backends = [DjangoFilterBackend]
+    filterset_class = ProductFilter
     filterset_fields = ['subcategory__category', 'price']
 
     def get_object(self):
@@ -87,7 +90,15 @@ class ProductViewSet(ModelViewSet):
             logger.info(f"Фильтр по subcategory_slug: {subcategory_slug}")
             queryset = queryset.filter(subcategory__slug=subcategory_slug)
         logger.info(f"Товаров в queryset: {queryset.count()}")
+
+        queryset = queryset.annotate(
+            avg_rating=Avg('comments__rating'),
+            total_stock=Sum('stock'),
+            max_price=Max('price')
+        )
+
         return queryset
+
 
     @action(detail=False, methods=['get'])
     def stats(self, request):
@@ -334,7 +345,36 @@ class PromotionViewSet(ModelViewSet):
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
 
+class CreateOrderView(generics.CreateAPIView):
+    serializer_class = OrderSerializer
+    permission_classes = [IsAuthenticated]
 
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        address = request.data.get('address')
+        try:
+            cart = Cart.objects.prefetch_related('items__product').get(user=user)
+        except Cart.DoesNotExist:
+            return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not cart.items.exists():
+            return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+
+        total_price = sum(item.product.price * item.quantity for item in cart.items.all())
+        order = Order.objects.create(user=user, address=address, total_price=total_price)
+
+        for item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.price
+            )
+
+        cart.items.all().delete()
+
+        serializer = self.get_serializer(order)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 # class RegisterView(APIView):
 #     def post(self, request):
 #         serializer = RegisterSerializer(data=request.data)

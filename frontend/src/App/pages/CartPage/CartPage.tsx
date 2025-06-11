@@ -23,6 +23,66 @@ interface DecodedToken {
   user_id: number;
 }
 
+const CreateOrderForm = () => {
+  const [address, setAddress] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+
+  const handleOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+
+    const token = localStorage.getItem('access');
+    if (!token) {
+      setError('Not authenticated');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      await axios.post(
+        'http://127.0.0.1:8000/api/order/create/',
+        { address },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setSuccess(true);
+      setAddress('');
+    } catch {
+      setError('Failed to create order.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2>Создать заказ</h2>
+      {success && <p>Заказ успешно создан!</p>}
+      {error && <p style={{ color: 'red' }}>{error}</p>}
+      <form onSubmit={handleOrderSubmit}>
+        <label>
+          Адрес:
+          <input
+            type="text"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            required
+          />
+        </label>
+        <button type="submit" disabled={loading}>
+          {loading ? 'Оформление заказа...' : 'Оформить заказ'}
+        </button>
+      </form>
+    </div>
+  );
+};
+
 const CartPage = () => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,7 +92,7 @@ const CartPage = () => {
     if (!token) return;
 
     try {
-      const response = await axios.patch(
+      await axios.patch(
         `http://127.0.0.1:8000/api/cart/item/${itemId}/`,
         { quantity },
         {
@@ -50,8 +110,8 @@ const CartPage = () => {
         );
         return { ...prevCart, items: updatedItems };
       });
-    } catch (err) {
-      console.error('Ошибка обновления количества:', err);
+    } catch {
+      console.error('Ошибка обновления количества');
     }
   };
 
@@ -116,12 +176,17 @@ const CartPage = () => {
                 <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
               </div>
             </div>
-          ))}
 
+          ))}
+          <p className={styles.total}>
+            <strong>Итого:</strong>{' '}
+            {cart.items.reduce((sum, item) => sum + item.product.price * item.quantity, 0)} ₽
+          </p>
         </div>
       ) : (
         <div>Корзина пуста.</div>
       )}
+      <CreateOrderForm />
     </div>
   );
 };
