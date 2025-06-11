@@ -1,6 +1,6 @@
 import logging
 from rest_framework.views import APIView
-from rest_framework import status
+from rest_framework import status, generics
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 
@@ -252,6 +252,29 @@ class CartDetailView(APIView):
         serializer = CartSerializer(cart)
         return Response(serializer.data)
 
+class AddCartItemView(generics.CreateAPIView):
+    serializer_class = CartItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        cart, _ = Cart.objects.get_or_create(user=self.request.user)
+        serializer.save(cart=cart)
+        
+class UpdateCartItemView(generics.UpdateAPIView):
+    queryset = CartItem.objects.all()
+    serializer_class = CartItemSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(cart__user=self.request.user)
+    
+class RemoveCartItemView(generics.DestroyAPIView):
+    queryset = CartItem.objects.all()
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return self.queryset.filter(cart__user=self.request.user)
+    
 class CartViewSet(ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer

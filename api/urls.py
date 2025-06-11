@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet, CommentViewSet, CompositionViewSet, CategoryViewSet, SubcategoryViewSet
+from .views import AddCartItemView, ProductViewSet, CommentViewSet, CompositionViewSet, CategoryViewSet, RemoveCartItemView, SubcategoryViewSet, UpdateCartItemView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import HighRatingProductsView, SearchProductsView, UpdateProductPriceView, DeleteProductView
 from .views import PromotionViewSet, CartViewSet, CartItemViewSet, CartDetailView
@@ -40,6 +40,10 @@ urlpatterns = [
     # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 
     path('cart/view/', CartDetailView.as_view(), name='cart-view'),
+    path('cart/view/', CartDetailView.as_view(), name='cart-view'),
+    path('cart/add/', AddCartItemView.as_view(), name='cart-add'),
+    path('cart/remove/<int:pk>/', RemoveCartItemView.as_view(), name='cart-remove'),
+    path('cart/item/<int:pk>/', UpdateCartItemView.as_view(), name='cart-item-update'),
     path('products/high-rating/', HighRatingProductsView.as_view(), name='high_rating_products'),
     path('products/search/', SearchProductsView.as_view(), name='search_products'),
     path('products/update-price/', UpdateProductPriceView.as_view(), name='update_product_price'),

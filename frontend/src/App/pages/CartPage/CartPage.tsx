@@ -27,6 +27,33 @@ const CartPage = () => {
   const [cart, setCart] = useState<Cart | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const updateQuantity = async (itemId: number, quantity: number) => {
+    const token = localStorage.getItem('access');
+    if (!token) return;
+
+    try {
+      const response = await axios.patch(
+        `http://127.0.0.1:8000/api/cart/item/${itemId}/`,
+        { quantity },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Обновляем корзину локально
+      setCart((prevCart) => {
+        if (!prevCart) return prevCart;
+        const updatedItems = prevCart.items.map((item) =>
+          item.id === itemId ? { ...item, quantity } : item
+        );
+        return { ...prevCart, items: updatedItems };
+      });
+    } catch (err) {
+      console.error('Ошибка обновления количества:', err);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('access');
@@ -82,10 +109,15 @@ const CartPage = () => {
           {cart.items.map((item) => (
             <div key={item.id} className={styles.cartItem}>
               <span>{item.product.name}</span>
-              <span>Количество: {item.quantity}</span>
-              <span>Цена: {item.product.price}₽ </span>
+              <span>Цена: {item.product.price}₽</span>
+              <div>
+                <button onClick={() => updateQuantity(item.id, item.quantity - 1)} disabled={item.quantity <= 1}>−</button>
+                <span>{item.quantity}</span>
+                <button onClick={() => updateQuantity(item.id, item.quantity + 1)}>+</button>
+              </div>
             </div>
           ))}
+
         </div>
       ) : (
         <div>Корзина пуста.</div>

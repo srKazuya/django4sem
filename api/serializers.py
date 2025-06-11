@@ -71,10 +71,26 @@ class ProductSerializer(serializers.ModelSerializer):
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
-
+    product_id = serializers.PrimaryKeyRelatedField(
+        queryset=Product.objects.all(),
+        source='product',
+        write_only=True
+    )
+    cart = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = CartItem
-        fields = ['id', 'cart', 'product', 'quantity']
+        fields = ['id', 'cart', 'product', 'product_id', 'quantity']
+    def validate(self, data):
+        product = data.get('product')
+        quantity = data.get('quantity')
+
+        if product.stock < quantity:  
+            raise serializers.ValidationError({
+                'quantity': f'На складе доступно только {product.stock} шт.'
+            })
+
+        return data
+
 
 
 class CartSerializer(serializers.ModelSerializer):
