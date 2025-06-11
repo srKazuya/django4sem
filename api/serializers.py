@@ -67,7 +67,24 @@ class ProductSerializer(serializers.ModelSerializer):
         url = reverse('subcategory-detail', kwargs={'slug': obj.subcategory.slug})
         product_url = f"{url}{obj.slug}/{obj.sku}/"
         return request.build_absolute_uri(product_url)
+    
 
+class CartItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = CartItem
+        fields = ['id', 'cart', 'product', 'quantity']
+
+
+class CartSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='user.username', read_only=True)
+    items = CartItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Cart
+        fields = ['id', 'user', 'created_at', 'items']
+        
 class CommentSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='user.username', read_only=True)
     userId = serializers.IntegerField(source='user.id', read_only=True)  # Добавляем userId
@@ -89,21 +106,6 @@ class ProductAttributeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductAttribute
-        fields = '__all__'
-
-class CartSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)
-
-    class Meta:
-        model = Cart
-        fields = '__all__'
-
-class CartItemSerializer(serializers.ModelSerializer):
-    cart = CartSerializer(read_only=True)
-    product = ProductSerializer(read_only=True)
-
-    class Meta:
-        model = CartItem
         fields = '__all__'
 
 class CompositionSerializer(serializers.ModelSerializer):

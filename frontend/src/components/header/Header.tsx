@@ -103,10 +103,10 @@ const Header = () => {
           ))}
         </ul>
 
-        <div className={styles.buttonsDesktop}> 
+        <div className={styles.buttonsDesktop}>
           <button className={styles.button}>
-            <img src={likeIcon} alt="Избранное" />
-            <span>Избранное</span>
+            <img src={profileIcon} alt="Избранное" />
+            <span>Профиль</span>
           </button>
           {isAuthenticated ? (
             <button className={styles.button} onClick={handleLogoutClick}>
@@ -117,19 +117,26 @@ const Header = () => {
             <button className={styles.button} onClick={handleLoginClick}>
               <img src={profileIcon} alt="Войти" />
               <span>Войти</span>
+
             </button>
           )}
+
           <button className={styles.button}>
-            <img src={busketIcon} alt="Корзина" />
-            <span>Корзина</span>
+            <Link to="/cart">
+              <img src={busketIcon} alt="Корзина" />
+              <span>Корзина</span>
+            </Link>
+
           </button>
+
+
         </div>
       </nav>
 
       <div className={styles.buttonsMobile}> {/* Добавлен контейнер для мобильной версии */}
         <button className={styles.button}>
-          <img src={likeIcon} alt="Избранное" />
-          <span>Избранное</span>
+          <img src={profileIcon} alt="Избранное" />
+          <span>Профиль</span>
         </button>
         {isAuthenticated ? (
           <button className={styles.button} onClick={handleLogoutClick}>

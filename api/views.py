@@ -1,7 +1,7 @@
 import logging
 from rest_framework.views import APIView
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 
 
 from django.urls import reverse
@@ -239,6 +239,19 @@ class CompositionViewSet(ModelViewSet):
             logger.error(f"Композиция с slug {slug} не найдена")
             raise
 
+
+class CartDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            cart = Cart.objects.prefetch_related('items__product').get(user=request.user)
+        except Cart.DoesNotExist:
+            return Response({"detail": "Cart not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
 class CartViewSet(ModelViewSet):
     queryset = Cart.objects.all()
     serializer_class = CartSerializer
@@ -297,6 +310,7 @@ class DeleteProductView(APIView):
 class PromotionViewSet(ModelViewSet):
     queryset = Promotion.objects.all()
     serializer_class = PromotionSerializer
+
 
 # class RegisterView(APIView):
 #     def post(self, request):

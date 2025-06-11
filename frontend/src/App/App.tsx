@@ -9,6 +9,7 @@ import RegisterPage from '@pages/RegisterPage';
 import LoginPage from '@pages/LoginPage';
 import Header from '@components/header'
 import styles from './App.module.scss';
+import CartPage from '@pages/CartPage';
 
 const App = () => {
 
@@ -23,6 +24,8 @@ const App = () => {
           <Route path="/subcategory/:slug/:productSlug/:sku" element={<ProductPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/cart" element={<CartPage />} />
+          
         </Routes>
       </Router>
     </div>
