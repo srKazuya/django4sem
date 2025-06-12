@@ -20,7 +20,6 @@ const LoginPage = () => {
       localStorage.setItem('refresh', response.data.refresh);
       setMessage('Успешный вход');
       navigate('/');
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       setMessage('Ошибка авторизации');
     }
@@ -53,6 +52,16 @@ const LoginPage = () => {
         </button>
         {message && <p className={styles.message}>{message}</p>}
       </form>
+
+      {/* Кнопка для входа через Google */}
+      <div style={{ marginTop: '20px' }}>
+        <a href="http://127.0.0.1:8000/accounts/google/login/">
+          <button className={styles.button} style={{ backgroundColor: '#4285F4', color: 'white' }}>
+            Войти через Google
+          </button>
+        </a>
+      </div>
+
       <button onClick={handleRegisterRedirect} className={styles.registerButton}>
         Зарегистрироваться
       </button>

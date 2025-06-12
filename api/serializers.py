@@ -134,28 +134,31 @@ class CartItemSerializer(serializers.ModelSerializer):
         model = CartItem
         fields = ['id', 'cart', 'product', 'product_id', 'quantity']
 
-    def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Валидировать данные элемента корзины.
+    # def validate(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    #     """
+    #     Валидировать данные элемента корзины.
 
-        Аргументы:
-            data (Dict[str, Any]): Данные для валидации.
+    #     Аргументы:
+    #         data (Dict[str, Any]): Данные для валидации.
 
-        Возвращает:
-            Dict[str, Any]: Проверенные данные.
+    #     Возвращает:
+    #         Dict[str, Any]: Проверенные данные.
 
-        Вызывает:
-            serializers.ValidationError: Если запрашиваемое количество превышает наличие на складе.
-        """
-        product = data.get('product')
-        quantity = data.get('quantity')
+    #     Вызывает:
+    #         serializers.ValidationError: Если запрашиваемое количество превышает наличие на складе.
+    #     """
+    #     product = data.get('product')
+    #     quantity = data.get('quantity')
 
-        if product.stock < quantity:
-            raise serializers.ValidationError({
-                'quantity': f'На складе доступно только {product.stock} шт.'
-            })
+    #     if not product:
+    #         raise serializers.ValidationError("Продукт не найден.")
 
-        return data
+    #     if product.stock < quantity:
+    #         raise serializers.ValidationError({
+    #             'quantity': f'На складе доступно только {product.stock} шт.'
+    #         })
+
+    # return data
 
 class CartSerializer(serializers.ModelSerializer):
     """
@@ -257,40 +260,40 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'address', 'created_at', 'total_price', 'items']
         read_only_fields = ['user', 'created_at', 'total_price']
 
-    def validate_address(self, value: str) -> str:
-        """
-        Проверка адреса доставки.
+    # def validate_address(self, value: str) -> str:
+    #     """
+    #     Проверка адреса доставки.
 
-        Аргументы:
-            value (str): Адрес доставки.
+    #     Аргументы:
+    #         value (str): Адрес доставки.
 
-        Возвращает:
-            str: Проверенный адрес.
+    #     Возвращает:
+    #         str: Проверенный адрес.
 
-        Вызывает:
-            serializers.ValidationError: Если адрес некорректен.
-        """
-        if len(value.strip()) < 3:
-            raise serializers.ValidationError("Адрес должен содержать минимум 3 символа.")
-        return value
+    #     Вызывает:
+    #         serializers.ValidationError: Если адрес некорректен.
+    #     """
+    #     if len(value.strip()) < 3:
+    #         raise serializers.ValidationError("Адрес должен содержать минимум 3 символа.")
+    #     return value
 
-    def validate(self, data):
-        """
-        Общая валидация данных заказа.
+    # def validate(self, data):
+    #     """
+    #     Общая валидация данных заказа.
 
-        Аргументы:
-            data (Dict[str, Any]): Данные заказа.
+    #     Аргументы:
+    #         data (Dict[str, Any]): Данные заказа.
 
-        Возвращает:
-            Dict[str, Any]: Проверенные данные заказа.
+    #     Возвращает:
+    #         Dict[str, Any]: Проверенные данные заказа.
 
-        Вызывает:
-            serializers.ValidationError: Если данные заказа некорректны.
-        """
-        total_price = data.get('total_price')
-        if total_price is not None:
-            if total_price < 500:
-                raise serializers.ValidationError("Сумма заказа должна быть не меньше 500 рублей.")
-            if total_price > 1_000_000:
-                raise serializers.ValidationError("Сумма заказа не может превышать 1 000 000 рублей.")
-        return data
+    #     Вызывает:
+    #         serializers.ValidationError: Если данные заказа некорректны.
+    #     """
+    #     total_price = data.get('total_price')
+    #     if total_price is not None:
+    #         if total_price < 500:
+    #             raise serializers.ValidationError("Сумма заказа должна быть не меньше 500 рублей.")
+    #         if total_price > 1_000_000:
+    #             raise serializers.ValidationError("Сумма заказа не может превышать 1 000 000 рублей.")
+        # return data

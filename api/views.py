@@ -14,6 +14,8 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 from typing import Any
 
+from api.tasks import send_order_confirmation_email
+
 from api.filters import ProductFilter
 from .models import Category, Order, OrderItem, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem, Promotion
 from .serializers import (
@@ -435,6 +437,9 @@ class CreateOrderView(generics.CreateAPIView):
         cart.items.all().delete()
 
         serializer = self.get_serializer(order)
+        serializer = self.get_serializer(order)
+        send_order_confirmation_email.delay(user.email, order.id, total_price)
+
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 # class RegisterView(APIView):
 #     def post(self, request):
