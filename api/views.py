@@ -10,6 +10,9 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.request import Request
+from rest_framework.response import Response
+from typing import Any
 
 from api.filters import ProductFilter
 from .models import Category, Order, OrderItem, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem, Promotion
@@ -21,11 +24,23 @@ from .serializers import (
 logger = logging.getLogger(__name__)
 
 class CategoryViewSet(ModelViewSet):
+    """
+    Представление для работы с категориями.
+    """
     queryset = Category.objects.filter(subcategories__isnull=False).distinct()
     serializer_class = CategorySerializer
     lookup_field = 'slug'
 
-    def get_object(self):
+    def get_object(self) -> Category:
+        """
+        Получить объект категории по slug.
+
+        Возвращает:
+            Category: Экземпляр категории.
+
+        Исключения:
+            Category.DoesNotExist: Если категория с указанным slug не найдена.
+        """
         slug = self.kwargs.get('slug')
         logger.info(f"Поиск категории с slug: {slug}")
         try:
@@ -37,17 +52,39 @@ class CategoryViewSet(ModelViewSet):
             raise
 
     @action(detail=True, methods=['get'])
-    def get_absolute(self, request, slug=None):
+    def get_absolute(self, request: Request, slug: str = None) -> Response:
+        """
+        Получить абсолютный URL категории.
+
+        Аргументы:
+            request (Request): HTTP запрос.
+            slug (str): Slug категории.
+
+        Возвращает:
+            Response: HTTP ответ с абсолютным URL категории.
+        """
         category = self.get_object()
         url = reverse('category-detail', kwargs={'slug': category.slug})
         return Response({"absolute_url": request.build_absolute_uri(url)})
 
 class SubcategoryViewSet(ModelViewSet):
+    """
+    Представление для работы с подкатегориями.
+    """
     queryset = Subcategory.objects.all()
     serializer_class = SubcategorySerializer
     lookup_field = 'slug'
 
-    def get_object(self):
+    def get_object(self) -> Subcategory:
+        """
+        Получить объект подкатегории по slug.
+
+        Возвращает:
+            Subcategory: Экземпляр подкатегории.
+
+        Исключения:
+            Subcategory.DoesNotExist: Если подкатегория с указанным slug не найдена.
+        """
         slug = self.kwargs.get('slug')
         logger.info(f"Поиск подкатегории с slug: {slug}")
         try:
@@ -59,7 +96,17 @@ class SubcategoryViewSet(ModelViewSet):
             raise
 
     @action(detail=True, methods=['get'])
-    def get_absolute(self, request, slug=None):
+    def get_absolute(self, request: Request, slug: str = None) -> Response:
+        """
+        Получить абсолютный URL подкатегории.
+
+        Аргументы:
+            request (Request): HTTP запрос.
+            slug (str): Slug подкатегории.
+
+        Возвращает:
+            Response: HTTP ответ с абсолютным URL подкатегории.
+        """
         subcategory = self.get_object()
         url = reverse('subcategory-detail', kwargs={'slug': subcategory.slug})
         return Response({"absolute_url": request.build_absolute_uri(url)})
@@ -346,19 +393,33 @@ class PromotionViewSet(ModelViewSet):
     serializer_class = PromotionSerializer
 
 class CreateOrderView(generics.CreateAPIView):
+    """
+    API представление для создания заказа из корзины пользователя.
+    """
     serializer_class = OrderSerializer
     permission_classes = [IsAuthenticated]
 
-    def create(self, request, *args, **kwargs):
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
+        """
+        Создать заказ для аутентифицированного пользователя.
+
+        Аргументы:
+            request (Request): HTTP запрос.
+            *args (Any): Дополнительные позиционные аргументы.
+            **kwargs (Any): Дополнительные именованные аргументы.
+
+        Возвращает:
+            Response: HTTP ответ с данными созданного заказа или сообщением об ошибке.
+        """
         user = request.user
         address = request.data.get('address')
         try:
             cart = Cart.objects.prefetch_related('items__product').get(user=user)
         except Cart.DoesNotExist:
-            return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Корзина пуста"}, status=status.HTTP_400_BAD_REQUEST)
 
         if not cart.items.exists():
-            return Response({"detail": "Cart is empty"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Корзина пуста"}, status=status.HTTP_400_BAD_REQUEST)
 
         total_price = sum(item.product.price * item.quantity for item in cart.items.all())
         order = Order.objects.create(user=user, address=address, total_price=total_price)

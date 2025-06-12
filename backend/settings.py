@@ -30,6 +30,22 @@ ALLOWED_HOSTS = []
 # Основная директория для медиафайлов
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+# settings.py
+
+# import os
+# import sentry_sdk
+# from sentry_sdk.integrations.django import DjangoIntegration
+
+# SENTRY_DSN = os.getenv("SENTRY_DSN", "https://<ключ>@sentry.io/<идентификатор>")
+
+# sentry_sdk.init(
+#     dsn=SENTRY_DSN,
+#     integrations=[DjangoIntegration()],
+    
+#     traces_sample_rate=1.0,
+
+#     send_default_pii=True,
+# )
 
 # Настройки Django Filer
 FILER_PUBLIC_MEDIA_ROOT = MEDIA_ROOT / "filer_public"
