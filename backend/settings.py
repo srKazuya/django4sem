@@ -28,8 +28,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = config('SECRET_KEY', default='dev-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = config('DEBUG', default=True, cast=bool)
+DEBUG = True
+# DEBUG = config('DEBUG', default=True, cast=bool)
 
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv())
@@ -48,7 +48,7 @@ if ENVIRONMENT == 'production':
     CSRF_COOKIE_SECURE = True
     SECURE_HSTS_SECONDS = 3600
 else:
-    STATIC_URL = 'static/'
+    STATIC_URL = '/static/'
 
 
 # Основная директория для медиафайлов
@@ -154,6 +154,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 LOGIN_REDIRECT_URL = '/'  # куда редиректить после успешного логина
+
 
 
 

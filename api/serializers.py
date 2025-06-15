@@ -41,10 +41,10 @@ class SubcategorySerializer(serializers.ModelSerializer):
     """
     absolute_url = serializers.SerializerMethodField()
     category_name = serializers.CharField(source='category.name', read_only=True)
-
+    note = serializers.SerializerMethodField()
     class Meta:
         model = Subcategory
-        fields = ('id', 'name', 'slug', 'absolute_url', 'category_name')
+        fields = ('id', 'name', 'slug', 'absolute_url', 'category_name', 'note')
 
     def get_absolute_url(self, obj: Subcategory) -> Optional[str]:
         """
@@ -61,6 +61,9 @@ class SubcategorySerializer(serializers.ModelSerializer):
             return None
         url = reverse('subcategory-detail', kwargs={'slug': obj.slug})
         return request.build_absolute_uri(url)
+    def get_note(self, obj: Category) -> Optional[str]:
+
+        return self.context.get('custom_note')
 
 class CategorySerializer(serializers.ModelSerializer):
     """
@@ -68,10 +71,11 @@ class CategorySerializer(serializers.ModelSerializer):
     """
     subcategories = SubcategoryShortSerializer(many=True, read_only=True)
     absolute_url = serializers.SerializerMethodField()
+    note = serializers.SerializerMethodField()
 
     class Meta:
         model = Category
-        fields = ('id', 'name', 'slug', 'subcategories', 'absolute_url')
+        fields = ('id', 'name', 'slug', 'subcategories', 'absolute_url', 'note')
 
     def get_absolute_url(self, obj: Category) -> Optional[str]:
         """
@@ -88,7 +92,11 @@ class CategorySerializer(serializers.ModelSerializer):
             return None
         url = reverse('category-detail', kwargs={'slug': obj.slug})
         return request.build_absolute_uri(url)
+    
+    def get_note(self, obj: Category) -> Optional[str]:
 
+        return self.context.get('custom_note')
+    
 class ProductSerializer(serializers.ModelSerializer):
     """
     Сериализатор для продукта с деталями.

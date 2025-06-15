@@ -68,7 +68,20 @@ class CategoryViewSet(ModelViewSet):
         category = self.get_object()
         url = reverse('category-detail', kwargs={'slug': category.slug})
         return Response({"absolute_url": request.build_absolute_uri(url)})
+    
+    @action(detail=True, methods=['get'])
+    def enriched(self, request: Request, slug: str = None) -> Response:
+        
+        category = self.get_object()
 
+        extra_context = {
+            'request': request, 
+            'custom_note': f'Категория получена вручную: {category.name}',
+        }
+
+        serializer = CategorySerializer(category, context=extra_context)
+        return Response(serializer.data)  
+     
 class SubcategoryViewSet(ModelViewSet):
     """
     Представление для работы с подкатегориями.
@@ -112,7 +125,16 @@ class SubcategoryViewSet(ModelViewSet):
         subcategory = self.get_object()
         url = reverse('subcategory-detail', kwargs={'slug': subcategory.slug})
         return Response({"absolute_url": request.build_absolute_uri(url)})
-
+    
+    @action(detail=True, methods=['get'])
+    def enriched(self, request: Request, slug: str = None) -> Response:
+        subcategory = self.get_object()
+        extra_context = {
+            'request': request,
+            'custom_note': f'Подкатегория получена вручную: {subcategory.name}',
+        }
+        serializer = SubcategorySerializer(subcategory, context=extra_context)
+        return Response(serializer.data)
 class ProductViewSet(ModelViewSet):
     queryset = Product.objects.select_related('subcategory').prefetch_related('attributes').all()
     serializer_class = ProductSerializer
