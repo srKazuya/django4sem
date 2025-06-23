@@ -63,7 +63,7 @@ const LoginPage = () => {
       </div>
 
       <button onClick={handleRegisterRedirect} className={styles.registerButton}>
-        Зарегистрироваться
+        Зарегистрироваться 
       </button>
     </div>
   );
