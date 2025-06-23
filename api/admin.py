@@ -1,7 +1,7 @@
 from django.contrib import admin
 from .models import (
     Category, Order, Subcategory, Product, Attribute, ProductAttribute, Comment,
-    Cart, CartItem, Composition, CompositionItem, Promotion, OrderItem
+    Cart, CartItem, Composition, CompositionItem, Promotion, OrderItem, KMexam
 )
 from .pdf_utils import generate_products_pdf
 
@@ -113,3 +113,11 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__username', 'address')
     date_hierarchy = 'created_at'
     inlines = [OrderItemInline]
+    
+@admin.register(KMexam)
+class ExamAdmin(admin.ModelAdmin):
+    list_display = ('title', 'exam_date', 'is_public', 'created_at')
+    search_fields = ('title', 'users__email')
+    list_filter = ('is_public', 'created_at', 'exam_date')
+    filter_horizontal = ('users',)
+    date_hierarchy = 'exam_date'
