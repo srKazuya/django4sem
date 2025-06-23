@@ -10,6 +10,7 @@ import LoginPage from '@pages/LoginPage';
 import Header from '@components/header'
 import styles from './App.module.scss';
 import CartPage from '@pages/CartPage';
+import ExamPage from '@pages/ExamPage';
 
 const App = () => {
 
@@ -25,6 +26,8 @@ const App = () => {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/cart" element={<CartPage />} />
+          <Route path="/kmexam" element={<ExamPage />} />
+          
           
         </Routes>
       </Router>

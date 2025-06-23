@@ -3,10 +3,24 @@ from rest_framework import serializers
 from .models import (
     Category, Order, OrderItem, Subcategory, Product, Comment, 
     Attribute, ProductAttribute, Cart, CartItem, 
-    Composition, CompositionItem, Promotion
+    Composition, CompositionItem, Promotion, KMexam
 )
+
 from users.models import User
 from typing import Any, Dict, Optional
+
+
+class UserShortSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'email']
+        
+class kmexamSerializer(serializers.ModelSerializer):
+    users = UserShortSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = KMexam
+        fields = ['id', 'title', 'created_at', 'exam_date', 'image', 'users', 'is_public']
 
 class SubcategoryShortSerializer(serializers.ModelSerializer):
     """

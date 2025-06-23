@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import AddCartItemView, CreateOrderView, ProductViewSet, CommentViewSet, CompositionViewSet, CategoryViewSet, RemoveCartItemView, SubcategoryViewSet, UpdateCartItemView
+from .views import AddCartItemView, CreateOrderView, ExamListView, ProductViewSet, CommentViewSet, CompositionViewSet, CategoryViewSet, RemoveCartItemView, SubcategoryViewSet, UpdateCartItemView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import HighRatingProductsView, SearchProductsView, UpdateProductPriceView, DeleteProductView
 from .views import PromotionViewSet, CartViewSet, CartItemViewSet, CartDetailView
@@ -51,5 +51,6 @@ urlpatterns = [
     path('products/update-price/', UpdateProductPriceView.as_view(), name='update_product_price'),
     path('products/delete/', DeleteProductView.as_view(), name='delete_product'),
     path('products/new/', ProductViewSet.as_view({'get': 'new_products'}), name='new_products'),
+    path('exam/', ExamListView.as_view(), name='exam-list'),    
     
 ] + router.urls

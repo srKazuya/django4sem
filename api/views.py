@@ -17,13 +17,22 @@ from typing import Any
 from api.tasks import send_order_confirmation_email
 
 from api.filters import ProductFilter
-from .models import Category, Order, OrderItem, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem, Promotion
+from .models import Category, Order, OrderItem, Subcategory, Product, Comment, Cart, CartItem, Composition, CompositionItem, Promotion, KMexam
 from .serializers import (
     CategorySerializer, OrderSerializer, SubcategorySerializer, ProductSerializer, 
-    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer, PromotionSerializer
+    CommentSerializer, CartSerializer, CartItemSerializer, CompositionSerializer, CompositionItemSerializer, PromotionSerializer, kmexamSerializer,
 )
 
 logger = logging.getLogger(__name__)
+
+class ExamListView(APIView):
+    def get(self, request):
+        exams = KMexam.objects.filter(is_public=True)
+        serializer = kmexamSerializer(exams, many=True)
+        return Response({
+            "title": "Малявкин Кирилл — Группа 231-321",
+            "exams": serializer.data
+        })
 
 class CategoryViewSet(ModelViewSet):
     """
